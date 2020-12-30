@@ -13,6 +13,6 @@ with Client("86.18.193.64", 25711, passwd="spiderMashTimewarp") as client:
     for i in range(10):
         client.fill(start, end, "iron_block", FillMode.REPLACE)
         sleep(1)
-        # client.fill(start, end, "air", FillMode.REPLACE)
+        client.fill(start, end, "air", FillMode.REPLACE)
         sleep(1)
 
