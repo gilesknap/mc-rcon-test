@@ -16,24 +16,15 @@ import re
 regex_coord = re.compile(r"\[(-?\d+).?\d*d, *(-?\d+).?\d*d, *(-?\d+).?\d*d\]")
 
 
-def box_corners(
-    center: vector, x_size: int, y_size: int, z_size: int
-) -> Tuple[vector, vector]:
-    # center describes the bottom centre of a bounding box
-    start = center + vector(-int(x_size / 2), 0, -int(z_size / 2))
-    end = start + vector(x_size - 1, y_size - 1, z_size - 1)
-    return start, end
-
-
 def make_walls(client: Client, material: str, start: vector, end: vector):
     # north wall uses min z and range of x, y
-    client.fill(start.v, Vec3(end.x, end.y, start.z), material)
+    client.fill(start, vector(end.x, end.y, start.z), material)  # type: ignore
     # south wall uses max z and range of x,y
-    client.fill(end.v, Vec3(start.x, start.y, end.z), material)
+    client.fill(end, vector(start.x, start.y, end.z), material)  # type: ignore
     # west wall uses min x and range of x,y
-    client.fill(start.v, Vec3(start.x, end.y, end.z), material)
+    client.fill(start, vector(start.x, end.y, end.z), material)  # type: ignore
     # east wall uses max x and range of z,y
-    client.fill(end.v, Vec3(end.x, start.y, start.z), material)
+    client.fill(end, vector(end.x, start.y, start.z), material)  # type: ignore
 
 
 def player_pos(client: Client, player_name: str) -> vector:

@@ -1,10 +1,10 @@
 from vector import vector
 from snippets import (
     player_pos,
-    box_corners,
     make_walls,
     players_in,
 )
+from box import box
 from mcipc.rcon.je import Client
 from mcipc.rcon.types import FillMode, Vec3
 from time import sleep
@@ -16,8 +16,8 @@ def setup(client: Client):
     # clear above top of mountain
     center = vector(-14112, 100, 4100)
     for y in range(30):
-        start, end = box_corners(center.up(y), 100, 1, 100)
-        client.fill(start.v, end.v, "air", FillMode.REPLACE)
+        bounds = box.centered(center.up(y), 100, 1, 100)
+        client.fill(bounds.start, bounds.end, "air", FillMode.REPLACE)  # type: ignore
 
 
 def players_pos(client: Client):
@@ -34,37 +34,35 @@ def animate_saucer(client, middle):
         sleep(0.2)
 
 
-old_location = vector(0, 0, 0)
-saucer_start = vector(0, 0, 0)
-saucer_end = vector(0, 0, 0)
+saucer = box()
+old_saucer = box()
 
 
 def flying_saucer(client: Client, location: vector):
-    global old_location, saucer_start, saucer_end
+    global saucer, old_saucer
     width: int = 5
     height: int = 1
 
-    # bootstrap old_location
-    if old_location is None:
-        old_location = location
-
-    # calculate the corners of the current and prev positions
-    old_start, old_end = box_corners(old_location, width, height + 1, width)
-    saucer_start, saucer_end = box_corners(location, width, 1, width)
+    # calculate the bounds of the current position
+    saucer = box.centered(location, width, 1, width)
 
     # overwrite the previous location with wool
-    client.fill(old_start.v, old_end.v, "gray_wool", FillMode.REPLACE)
+    client.fill(old_saucer.start, old_saucer.end.up(1), "gray_wool", FillMode.REPLACE)  # type: ignore
     # write the new location with iron_blocks
-    client.fill(saucer_start.v, saucer_end.v, "iron_block", FillMode.REPLACE)
-    make_walls(client, "iron_block", saucer_start.up(1), saucer_end.up(height))
+    client.fill(saucer.start, saucer.end, "iron_block", FillMode.REPLACE)  # type: ignore
+    make_walls(client, "iron_block", saucer.start.up(1), saucer.end.up(height))
     # overwrite all old wool with air
     client.fill(
-        old_start.v, old_end.v, "air", FillMode.REPLACE, filter="#minecraft:wool"
+        old_saucer.start,  # type: ignore
+        old_saucer.end.up(1),  # type: ignore
+        "air",
+        FillMode.REPLACE,
+        filter="#minecraft:wool",
     )
 
-    for player in players_in(client, saucer_start, saucer_end.up(1)):
-        client.teleport(location=location.up(1).v, targets=player)
-    old_location = location
+    for player in players_in(client, saucer.start, saucer.end.up(1)):
+        client.teleport(location=location.up(1), targets=player)  # type: ignore
+    old_saucer = saucer
 
 
 science = 25701
@@ -76,6 +74,6 @@ with Client("localhost", science, passwd="spider") as client:
     middle = vector(-14112, 101, 4100)
     flying_saucer(client, middle)
 
-    while not players_in(client, saucer_start, saucer_end.up(1)):
+    while not players_in(client, saucer.start, saucer.end.up(1)):
         sleep(0.1)
     animate_saucer(client, middle)
