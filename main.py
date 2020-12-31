@@ -1,3 +1,4 @@
+from typing import Tuple, Union
 from vector import vector
 from box import Box
 from helper import Helper
@@ -26,13 +27,22 @@ def test_wall(helper: Helper):
 science = 25701
 quest = 25575
 
+#vector = Tuple[Union[int, float, str], Union[int, float, str], Union[int, float, str]]
+
 with Client("localhost", science, passwd="spider") as client:
     helper = Helper(client)
     setup(client)
 
-    middle = vector(-14112, 101, 4100)
+    middle = vector(-14112, 99, 4100)
 
     saucer = Saucer(client, middle)
+
+    # for i in range(3):
+    #     pos = helper.player_pos("@p")
+    #     print(pos)
+    #     pos = pos.north(-1)
+    #     print(pos)
+    #     client.teleport(targets="@p", location=pos)  # type: ignore
 
     while not helper.players_in(saucer.bounds):
         sleep(0.1)

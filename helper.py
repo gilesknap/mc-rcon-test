@@ -2,7 +2,7 @@ from typing import List
 from box import Box, Regions
 from mcipc.rcon.je import Client
 from mcipc.rcon.types import FillMode, TargetType
-from vector import vector
+from vector import vector, fvector
 import re
 
 # Minecraft Coordinate System
@@ -14,19 +14,19 @@ import re
 #  "DispenserAD11 has the following entity data: \
 #   [-2984.3695730161085d, 87.16610926093821d, 54.42824875967167d]"
 
-regex_coord = re.compile(r"\[(-?\d+).?\d*d, *(-?\d+).?\d*d, *(-?\d+).?\d*d\]")
+regex_coord = re.compile(r"\[(-?\d+.?\d*)d, *(-?\d+.?\d*)d, *(-?\d+.?\d*)d\]")
 
 
 class Helper:
     def __init__(self, client: Client) -> None:
         self.client = client
 
-    def player_pos(self, player_name: str) -> vector:
+    def player_pos(self, player_name: str) -> fvector:
         data = self.client.data.get(TargetType.ENTITY, player_name, "Pos")
         match = regex_coord.search(data)
         if match:
-            result = vector(
-                int(match.group(1)), int(match.group(2)), int(match.group(3))
+            result = fvector(
+                float(match.group(1)), float(match.group(2)), float(match.group(3))
             )
             return result
         else:

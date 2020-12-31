@@ -43,8 +43,6 @@ class Saucer:
         self.render()
         self.helper.render_regions([clear, self._interior()], "air")
 
-        # TODO this TP does not work - you drift east as well as north
-        # maybe it is because of rounding?
         for player in self.helper.players_in(self.bounds):
             pos = self.helper.player_pos(player).north(z)
             self.client.teleport(targets=player, location=pos)  # type: ignore
