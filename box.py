@@ -31,17 +31,23 @@ class Box:
             and self.start.z <= location.z <= self.end.z
         )
 
-    def up(self, y: int):
-        self.start = self.start.up(y)
-        self.end = self.end.up(y)
+    def up(self, y: int)-> "Box":
+        result = Box(self.start, self.end)
+        result.start = result.start.up(y)
+        result.end = result.end.up(y)
+        return result
 
-    def north(self, z: int):
-        self.start = self.start.north(z)
-        self.end = self.end.north(z)
+    def north(self, z: int)-> "Box":
+        result = Box(self.start, self.end)
+        result.start = result.start.north(z)
+        result.end = result.end.north(z)
+        return result
 
-    def east(self, x: int):
-        self.start = self.start.east(x)
-        self.end = self.end.east(x)
+    def east(self, x: int)-> "Box":
+        result = Box(self.start, self.end)
+        result.start = result.start.east(x)
+        result.end = result.end.east(x)
+        return result
 
     def walls(
         self,

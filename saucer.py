@@ -10,7 +10,7 @@ class Saucer:
         client: Client,
         location: vector,
         size: int = 5,
-        material: str = "iron_block",
+        material: str = "glass",
     ) -> None:
         self.client = client
         self.material = material
@@ -29,19 +29,15 @@ class Saucer:
         return interior
 
     def north(self, z: int) -> None:
-        if abs(z) > 1:
-            raise ValueError("move must be only one block maximum")
-
-        s, e = self.bounds.start, self.bounds.end
-        if z > 1:
-            clear = Box(s, vector(e.x, e.y, e.z))
-        else:
-            clear = Box(e, vector(s.x, s.y, e.z))
-
-        self.bounds.north(z)
-
-        self.render()
-        self.helper.render_regions([clear, self._interior()], "air")
+        old_bounds = self.bounds
+        self.bounds = self.bounds.north(z)
+        self.client.clone(
+            old_bounds.start,
+            old_bounds.end,
+            self.bounds.start,
+            mask_mode="replace", # TODO these enumerations not working
+            clone_mode="move",
+        )
 
         for player in self.helper.players_in(self.bounds):
             pos = self.helper.player_pos(player).north(z)

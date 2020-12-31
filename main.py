@@ -44,8 +44,12 @@ with Client("localhost", science, passwd="spider") as client:
     #     print(pos)
     #     client.teleport(targets="@p", location=pos)  # type: ignore
 
-    while not helper.players_in(saucer.bounds):
-        sleep(0.1)
-    for z in range(100):
-        saucer.north(1)
-        sleep(.5)
+    while True:
+        while not helper.players_in(saucer.bounds):
+            sleep(0.1)
+        for z in range(100):
+            saucer.north(1)
+            sleep(.1)
+        for z in range(100):
+            saucer.north(-1)
+            sleep(.1)
