@@ -1,5 +1,5 @@
-from mcipc.rcon import FillMode, TargetType
-from vector import vector
+from mcipc.rcon.builder.types import Vec3, Direction
+from mcipc.rcon import FillMode
 from box import Box
 from helper import Helper
 from mcipc.rcon.je import Client
@@ -11,9 +11,10 @@ def setup(client: Client):
     # don't announce every rcon command
     client.gamerule("sendCommandFeedback", False)
     # clear an area
-    center = vector(-14112, 100, 4100)
+    center = Vec3(-14112, 100, 4100)
     for y in range(30):
-        bounds = Box.centered(center.up(y), 100, 1, 100)
+
+        bounds = Box.centered(center + Direction.UP.value * y, 100, 1, 100)
         client.fill(bounds.start, bounds.end, "air", mode=FillMode.REPLACE)
 
 
@@ -34,7 +35,7 @@ client.__enter__()
 helper = Helper(client)
 setup(client)
 
-middle = vector(347, 14, 189)
+middle = Vec3(347, 14, 189)
 
 saucer = Saucer(client, middle, material="red_concrete")
 

@@ -1,11 +1,8 @@
-from typing import List, Tuple
-
+from typing import List
 from mcipc.rcon.builder.types import Vec3
-
 from box import Box, Regions
 from mcipc.rcon.je import Client
-from mcipc.rcon import FillMode, TargetType
-from vector import vector, fvector
+from mcipc.rcon import TargetType
 import re
 
 # Minecraft Coordinate System
@@ -13,7 +10,7 @@ import re
 # plus X is East
 # plus Z is South
 
-# extract the integer coords from a string of the form
+# extract the double coords from a string of the form
 #  "DispenserAD11 has the following entity data: \
 #   [-2984.3695730161085d, 87.16610926093821d, 54.42824875967167d]"
 
