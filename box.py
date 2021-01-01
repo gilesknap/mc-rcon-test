@@ -1,4 +1,5 @@
 from typing import List
+
 from vector import vector
 
 Regions = List["Box"]
@@ -24,26 +25,26 @@ class Box:
         ycenter = self.start.y + int(self.end.y - self.start.y)
         return vector(xcenter, self.start.y, ycenter)
 
-    def inside(self, location: vector) -> bool:
+    def inside(self, location: vector, ytol: int = 0) -> bool:
         return (
             self.start.x <= location.x <= self.end.x
-            and self.start.y <= location.y <= self.end.y
+            and self.start.y - ytol <= location.y <= self.end.y + ytol
             and self.start.z <= location.z <= self.end.z
         )
 
-    def up(self, y: int)-> "Box":
+    def up(self, y: int) -> "Box":
         result = Box(self.start, self.end)
         result.start = result.start.up(y)
         result.end = result.end.up(y)
         return result
 
-    def north(self, z: int)-> "Box":
+    def north(self, z: int) -> "Box":
         result = Box(self.start, self.end)
         result.start = result.start.north(z)
         result.end = result.end.north(z)
         return result
 
-    def east(self, x: int)-> "Box":
+    def east(self, x: int) -> "Box":
         result = Box(self.start, self.end)
         result.start = result.start.east(x)
         result.end = result.end.east(x)

@@ -1,7 +1,10 @@
-from typing import List
+from typing import List, Tuple
+
+from mcipc.rcon.builder.types import Vec3
+
 from box import Box, Regions
 from mcipc.rcon.je import Client
-from mcipc.rcon.types import FillMode, TargetType
+from mcipc.rcon import FillMode, TargetType
 from vector import vector, fvector
 import re
 
@@ -21,29 +24,29 @@ class Helper:
     def __init__(self, client: Client) -> None:
         self.client = client
 
-    def player_pos(self, player_name: str) -> fvector:
+    def player_pos(self, player_name: str) -> Vec3:
         data = self.client.data.get(TargetType.ENTITY, player_name, "Pos")
         match = regex_coord.search(data)
         if match:
-            result = fvector(
+            result = Vec3(
                 float(match.group(1)), float(match.group(2)), float(match.group(3))
             )
             return result
         else:
             raise ValueError(f"player {player_name} does not exist")
 
-    def players_in(self, region: Box) -> List[str]:
+    def players_in(self, region: Box, ytol: int = 0) -> List[str]:
         # return a list of player names found within a region
         result = []
 
         names = [p.name for p in self.client.players.players]
         for name in names:
             pos = self.player_pos(name)
-            if region.inside(pos):
+            if region.inside(pos, ytol):
                 result.append(name)
 
         return result
 
     def render_regions(self, regions: Regions, material: str):
         for box in regions:
-            self.client.fill(box.start, box.end, material, FillMode.REPLACE)  # type: ignore
+            self.client.fill(box.start, box.end, material)

@@ -1,9 +1,8 @@
-from typing import Tuple, Union
+from mcipc.rcon import FillMode, TargetType
 from vector import vector
 from box import Box
 from helper import Helper
 from mcipc.rcon.je import Client
-from mcipc.rcon.types import FillMode
 from time import sleep
 from saucer import Saucer
 
@@ -11,11 +10,11 @@ from saucer import Saucer
 def setup(client: Client):
     # don't announce every rcon command
     client.gamerule("sendCommandFeedback", False)
-    # clear above top of mountain
+    # clear an area
     center = vector(-14112, 100, 4100)
     for y in range(30):
         bounds = Box.centered(center.up(y), 100, 1, 100)
-        client.fill(bounds.start, bounds.end, "air", FillMode.REPLACE)  # type: ignore
+        client.fill(bounds.start, bounds.end, "air", mode=FillMode.REPLACE)
 
 
 def test_wall(helper: Helper):
@@ -26,30 +25,25 @@ def test_wall(helper: Helper):
 
 science = 25701
 quest = 25575
+flat = 25901
 
-#vector = Tuple[Union[int, float, str], Union[int, float, str], Union[int, float, str]]
 
-with Client("localhost", science, passwd="spider") as client:
-    helper = Helper(client)
-    setup(client)
+client = Client("localhost", flat, passwd="spider")
+client.__enter__()
 
-    middle = vector(-14112, 99, 4100)
+helper = Helper(client)
+setup(client)
 
-    saucer = Saucer(client, middle)
+middle = vector(347, 14, 189)
 
-    # for i in range(3):
-    #     pos = helper.player_pos("@p")
-    #     print(pos)
-    #     pos = pos.north(-1)
-    #     print(pos)
-    #     client.teleport(targets="@p", location=pos)  # type: ignore
+saucer = Saucer(client, middle, material="red_concrete")
 
-    while True:
-        while not helper.players_in(saucer.bounds):
-            sleep(0.1)
-        for z in range(100):
-            saucer.north(1)
-            sleep(.1)
-        for z in range(100):
-            saucer.north(-1)
-            sleep(.1)
+while True:
+    while not helper.players_in(saucer.bounds, ytol=2):
+        sleep(0.1)
+    for z in range(100):
+        saucer.north(1)
+        sleep(.2)
+    for z in range(100):
+        saucer.north(-1)
+        sleep(.2)

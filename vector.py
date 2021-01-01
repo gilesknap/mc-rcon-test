@@ -1,5 +1,7 @@
 from typing import NamedTuple
 
+from mcipc.rcon.builder import Vec3
+
 
 class vector(NamedTuple):
     x: int
@@ -26,6 +28,11 @@ class vector(NamedTuple):
             and start.z <= self.z <= end.z
         )
 
+    @property
+    def v(self):
+        return Vec3(self.x, self.y, self.z)
+
+
 class fvector(NamedTuple):
     x: float
     y: float
@@ -50,3 +57,7 @@ class fvector(NamedTuple):
             and start.y <= self.y <= end.y
             and start.z <= self.z <= end.z
         )
+
+    @property
+    def v(self):
+        return Vec3(int(self.x), int(self.y), int(self.z))

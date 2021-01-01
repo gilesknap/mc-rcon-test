@@ -4,14 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-ipython = "*"
-mcipc = "==2.2.5"
+mcipc = {editable = true, path = "./../mcipc"}
 
 [dev-packages]
 black = "*"
+flake8 = "*"
+ipython = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
 
 [pipenv]
 allow_prereleases = true
