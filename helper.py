@@ -1,5 +1,5 @@
 from typing import List
-from mcipc.rcon.builder.types import Vec3
+from mcipc.rcon.builder import Vec3
 from box import Box, Regions
 from mcipc.rcon.je import Client
 from mcipc.rcon import TargetType

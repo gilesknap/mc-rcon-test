@@ -1,4 +1,4 @@
-from mcipc.rcon.builder.types import Vec3, Direction
+from mcipc.rcon.builder import Vec3, Direction
 from mcipc.rcon.je import Client
 from mcipc.rcon import TargetType
 import re
