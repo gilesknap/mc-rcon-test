@@ -34,13 +34,7 @@ flat = 25901
 # but this will spawn the item at 10000 10 10000 s0 best to do entity kill too
 
 
-def knot(client: Client, mid: Vec3, a: Anchor):
-    mktunnel(client, p, mid, direction=Direction.NORTH, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.SOUTH, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.EAST, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.WEST, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.UP, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=FillMode.KEEP, anchor=a)
+
 
 
 with Client("localhost", flat, passwd="spider") as client:
@@ -61,18 +55,4 @@ with Client("localhost", flat, passwd="spider") as client:
             saucer.north(-1)
             sleep(0.2)
 
-    p: Profile = [
-        [Item.RED_WOOL.value, Item.AIR.value, Item.GREEN_WOOL.value],
-        [Item.AIR.value, Item.AIR.value, Item.AIR.value],
-        [Item.BLUE_WOOL.value, Item.AIR.value, Item.YELLOW_WOOL.value],
-    ]
-
-    # clear 150 * 150 * 100 centred on world_middle
-    clear: Profile = [[Item.AIR.value] * 150] * 150
-    mktunnel(client, clear, Vec3(75, 5, -75), direction=Direction.UP, length=100)
-
-    mid = Vec3(0, 50, 0)
-    mid2 = Vec3(12, 50, 0)
-    knot(client, mid, Anchor.TOP_LEFT)
-    knot(client, mid2, Anchor.BOTTOM_RIGHT)
 
