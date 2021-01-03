@@ -1,5 +1,8 @@
 from typing import List
 from mcipc.rcon.builder import Vec3
+from mcipc.rcon.builder import Anchor, Direction, mktunnel
+from mcipc.rcon.builder.item import Item
+from mcipc.rcon.builder.types import Profile
 from box import Box, Regions
 from mcipc.rcon.je import Client
 from mcipc.rcon import TargetType
@@ -47,3 +50,14 @@ class Helper:
     def render_regions(self, regions: Regions, material: str):
         for box in regions:
             self.client.fill(box.start, box.end, material)
+
+    def clear_blocks(self, mid: Vec3, size: int):
+        clear: Profile = [[Item.AIR] * size] * size
+        mktunnel(
+            self.client,
+            clear,
+            mid,
+            direction=Direction.UP,
+            length=size,
+            anchor=Anchor.MIDDLE,
+        )
