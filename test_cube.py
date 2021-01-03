@@ -1,10 +1,7 @@
-from mcipc.rcon.builder import Item, Vec3, Profile
-from mcipc.rcon.enumerations import SetblockMode
+from mcipc.rcon.builder import Item, Vec3
 from mcipc.rcon.je import Client
 import numpy as np
 from time import sleep
-
-from numpy.lib.function_base import vectorize
 
 from helper import Helper
 
@@ -13,7 +10,10 @@ right = [Item.GREEN_CONCRETE] * 10
 row = [Item.BLUE_CONCRETE] + [Item.AIR] * 8 + [Item.YELLOW_CONCRETE]
 square = [left] + [row] * 8 + [right]
 
-top = [[Item.WHITE_CONCRETE, Item.GRAY_CONCRETE] * 5] * 10
+top = [
+    [Item.WHITE_CONCRETE, Item.GRAY_CONCRETE] * 5,
+    [Item.GRAY_CONCRETE, Item.WHITE_CONCRETE] * 5,
+] * 5
 bottom = [[Item.BLACK_CONCRETE, Item.GRAY_CONCRETE] * 5] * 10
 
 cube = [top] + [square] * 8 + [bottom]
@@ -29,7 +29,7 @@ def spin():
 
         for plane in planes:
             for rot in range(9):
-                sleep(.2)
+                sleep(0.2)
                 for idx, block in np.ndenumerate(ncube):
                     client.setblock(mid + Vec3(*idx), block)
 
