@@ -5,6 +5,7 @@ from box import Box
 from helper import Helper
 from mcipc.rcon.je import Client
 from mcipc.rcon import MaskMode, CloneMode
+import asyncio
 
 
 class x(NamedTuple):
@@ -28,6 +29,7 @@ class Saucer:
         self.material = material
         self.bounds = Box.centered(location, size, height, size)
         self.helper = Helper(client)
+        self.running = False
         self.render()
 
     def render(self):
@@ -62,3 +64,18 @@ class Saucer:
             raise ValueError("move must be only one block maximum")
         self.bounds.east(x)
         self.render()
+
+    async def run(self) -> None:
+        self.running = True
+        while self.running:
+            while not self.helper.players_in(self.bounds, ytol=2):
+                await asyncio.sleep(0.1)
+            for z in range(100):
+                self.north(1)
+                await asyncio.sleep(0.2)
+            for z in range(100):
+                self.north(-1)
+                await asyncio.sleep(0.2)
+
+    def stop(self) -> None:
+        self.running = False

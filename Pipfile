@@ -7,6 +7,8 @@ name = "pypi"
 mcipc = {editable = true, path = "./../mcipc"}
 numpy = "*"
 numba = "*"
+aiohttp = "*"
+aiofiles = "*"
 
 [dev-packages]
 black = "*"

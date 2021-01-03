@@ -18,18 +18,14 @@ def knot(client: Client, mid: Vec3, a: Anchor):
     mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=FillMode.KEEP, anchor=a)
 
 
-with Client("localhost", 25901, passwd="spider") as client:
-    # clear 150 * 150 * 100 centred on world_middle
-    clear: Profile = [[Item.AIR] * 150] * 150
-    mktunnel(client, clear, Vec3(75, 5, -75), direction=Direction.UP, length=250)
-
-    mid = Vec3(0, 50, 0)
+def test_anchor(client, location):
+    mid = location
     knot(client, mid, Anchor.TOP_LEFT)  # all should join at RED
-    mid = Vec3(10, 50, 0)
+    mid += Direction.EAST.value * 10
     knot(client, mid, Anchor.TOP_RIGHT)  # all shouls join at GREEN
-    mid = Vec3(20, 50, 0)
+    mid += Direction.EAST.value * 10
     knot(client, mid, Anchor.BOTTOM_LEFT)  # joins at BLUE
-    mid = Vec3(30, 50, 0)
+    mid += Direction.EAST.value * 10
     knot(client, mid, Anchor.BOTTOM_RIGHT)  # joins at YELLOW
-    mid = Vec3(40, 50, 0)
+    mid += Direction.EAST.value * 10
     knot(client, mid, Anchor.MIDDLE)  # joins in center

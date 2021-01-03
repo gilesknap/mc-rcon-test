@@ -18,9 +18,9 @@ class Box:
 
     @property
     def center(self):
-        xcenter = self.start.x + int(self.end.x - self.start.x)
-        ycenter = self.start.y + int(self.end.y - self.start.y)
-        return Vec3(xcenter, self.start.y, ycenter)
+        xcenter = self.start.x + int(self.end.x - self.start.x) / 2
+        zcenter = self.start.z + int(self.end.z - self.start.z) / 2
+        return Vec3(xcenter, self.start.y, zcenter)
 
     def inside(self, location: Vec3, ytol: int = 0) -> bool:
         return (
