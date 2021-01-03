@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../MinecraftServers"
+		},
+		{
+			"path": "../minecraft-control"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../mcipc"
+		},
+		{
+			"path": "../rcon"
+		}
+	],
+    "settings": {}
+}

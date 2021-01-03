@@ -1,5 +1,6 @@
 from mcipc.rcon.builder import Item, Vec3
 from mcipc.rcon.je import Client
+from numba import jit
 import numpy as np
 from time import sleep
 
@@ -22,7 +23,7 @@ def make_cube(size: int):
 
     return [top] + [square] * (size - 2) + [bottom]
 
-
+#@jit(nopython=True)
 def spin(cube):
     with Client("localhost", 25901, passwd="spider") as client:
         mid = Vec3(-13, 5, 8)
@@ -31,16 +32,14 @@ def spin(cube):
         ncube = np.array(cube)
         planes = [(0, 1), (0, 2), (1, 2)]
 
-        solid = (ncube != Item.AIR).flatten()
+        solid = ncube != Item.AIR
 
         while True:
             for plane in planes:
                 for rot in range(9):
                     sleep(0.5)
-                    for (idx, block), is_solid in zip(np.ndenumerate(ncube), solid):
-                        if (
-                            is_solid
-                        ):  #  meh - why doesn't numpy do a filtered enumerate?
+                    for idx, block in np.ndenumerate(ncube):
+                        if solid[idx]: #  meh - why doesn't numpy do a filtered enumerate?
                             client.setblock(mid + Vec3(*idx), block)
 
                     ncube = np.rot90(ncube, axes=plane)
