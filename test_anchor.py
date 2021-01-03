@@ -15,7 +15,7 @@ def knot(client: Client, mid: Vec3, a: Anchor):
     mktunnel(client, p, mid, direction=Direction.EAST, length=5, mode=FillMode.KEEP, anchor=a)
     mktunnel(client, p, mid, direction=Direction.WEST, length=5, mode=FillMode.KEEP, anchor=a)
     mktunnel(client, p, mid, direction=Direction.UP, length=5, mode=FillMode.KEEP, anchor=a)
-    # mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=FillMode.KEEP, anchor=a)
+    mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=FillMode.KEEP, anchor=a)
 
 
 with Client("localhost", 25901, passwd="spider") as client:
@@ -31,3 +31,5 @@ with Client("localhost", 25901, passwd="spider") as client:
     knot(client, mid, Anchor.BOTTOM_LEFT)  # joins at BLUE
     mid = Vec3(30, 50, 0)
     knot(client, mid, Anchor.BOTTOM_RIGHT)  # joins at YELLOW
+    mid = Vec3(40, 50, 0)
+    knot(client, mid, Anchor.MIDDLE)  # joins in center
