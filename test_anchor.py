@@ -21,7 +21,7 @@ def knot(client: Client, mid: Vec3, a: Anchor):
 with Client("localhost", 25901, passwd="spider") as client:
     # clear 150 * 150 * 100 centred on world_middle
     clear: Profile = [[Item.AIR] * 150] * 150
-    mktunnel(client, clear, Vec3(75, 5, -75), direction=Direction.UP, length=200)
+    mktunnel(client, clear, Vec3(75, 5, -75), direction=Direction.UP, length=250)
 
     mid = Vec3(0, 50, 0)
     knot(client, mid, Anchor.TOP_LEFT)  # all should join at RED

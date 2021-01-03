@@ -34,9 +34,6 @@ flat = 25901
 # but this will spawn the item at 10000 10 10000 s0 best to do entity kill too
 
 
-
-
-
 with Client("localhost", flat, passwd="spider") as client:
     helper = Helper(client)
     setup(client)
@@ -45,7 +42,7 @@ with Client("localhost", flat, passwd="spider") as client:
 
     saucer = Saucer(client, middle, material="red_concrete")
 
-    while False:
+    while True:
         while not helper.players_in(saucer.bounds, ytol=2):
             sleep(0.1)
         for z in range(100):
