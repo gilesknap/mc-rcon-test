@@ -39,12 +39,17 @@ class Button:
         self.on = item + "[powered=true]"
         self.off = item + "[powered=false]"
 
+        # TODO pass values for orientation to the constructor
         fullitem = item + self.data_values.format("floor", "north", "false")
         client.setblock(location, fullitem, mode=SetblockMode.REPLACE)
 
     def remove(self):
         self.buttons.remove(self)
         self.client.setblock(self.location, Item.AIR.value, mode=SetblockMode.REPLACE)
+
+    @classmethod
+    def stop(cls):
+        cls.monitoring = False
 
     @classmethod
     async def monitor(cls, client: Client):
