@@ -3,6 +3,7 @@ from typing import List
 from mcipc.rcon.builder import Item, Vec3
 from mcipc.rcon.builder.types import Direction
 from mcipc.rcon.je import Client
+from helper import Helper
 import numpy as np
 
 from shapes import default_vehicle
@@ -15,7 +16,7 @@ class Vehicle:
         location: Vec3,
         cube: List[List[List[Item]]] = None,
         pause: float = 0.5,
-        erase_pause: float = 0.1,
+        erase_pause: float = 0.3,
     ) -> None:
         self.client = client
         self.running = False
@@ -27,6 +28,7 @@ class Vehicle:
         self.old_loc: Vec3 = location
         self.erase_pause = erase_pause
         self.width, self.height, self.depth = self.cube.shape
+        self.helper = Helper(client)
 
     async def render(self):
         # render all blocks that are not "air"
@@ -53,9 +55,35 @@ class Vehicle:
         self.old_loc = self.location
         self.location += vector
         await self.render()
+        self.move_players(vector)
         await asyncio.sleep(self.erase_pause)
         await self.unrender(vector)
         await asyncio.sleep(self.pause)
+
+    def move_players(self, vector: Vec3):
+        players = []
+
+        names = [p.name for p in self.client.players.players]
+        for name in names:
+            try:
+                pos = self.helper.player_pos(name)
+                if self.inside(pos, 2):
+                    players.append(name)
+            except ValueError:
+                pass  # players somtimes are missing temporarily
+
+        for player in players:
+            pos = self.helper.player_pos(player)
+            pos += vector
+
+            self.client.teleport(targets=player, location=pos)
+
+    def inside(self, pos: Vec3, ytol: int = 0) -> bool:
+        return (
+            self.location.x <= pos.x <= self.location.x + self.width
+            and self.location.y - ytol <= pos.y <= self.location.y + self.height + ytol
+            and self.location.z <= pos.z <= self.location.z + self.depth
+        )
 
     def shift(self, arr, vec):
         result = np.full_like(arr, Item.AIR)
@@ -84,7 +112,7 @@ class Vehicle:
 if __name__ == "__main__":
     with Client("localhost", 25901, passwd="spider") as client:
         position = Vec3(36, 26, -90)
-        v = Vehicle(client, position, cube=default_vehicle, pause=0.1)
+        v = Vehicle(client, position, cube=default_vehicle, pause=0.5)
 
         #asyncio.run(v.render())
         for i in range(10):
