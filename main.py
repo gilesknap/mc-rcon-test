@@ -1,7 +1,6 @@
 import asyncio
-from asyncio.runners import run
+from player import Player
 from test_anchor import test_anchor
-from types import FunctionType
 
 from helper import Helper
 from mcipc.rcon.je import Client
@@ -29,9 +28,13 @@ flat = 25901
 async def runloop(*runners):
     await asyncio.gather(*runners)
 
+
 with Client("localhost", flat, passwd="spider") as client:
     helper = Helper(client)
     setup(client)
+
+    player = Player(client, "TransformerScorn")
+    player.give_stop()
 
     helper.clear_blocks(Vec3(0, 5, 0), 200)
     test_anchor(client, Vec3(0, 30, -40))
@@ -40,7 +43,9 @@ with Client("localhost", flat, passwd="spider") as client:
         Saucer(client, Vec3(0, 40, -60), material="red_concrete").run(),
         Saucer(client, Vec3(10, 40, -60), material="green_concrete").run(),
         Saucer(client, Vec3(20, 40, -60), material="blue_concrete").run(),
-        CubeRotator(client, Vec3(0, 5, 0), 16, 1.0).spin()
+        Saucer(client, Vec3(30, 40, -60), material="yellow_concrete").run(),
+        Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
+        CubeRotator(client, Vec3(0, 5, 0), 10, 1.0).spin(),
     ]
 
     asyncio.run(runloop(*runners))

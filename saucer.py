@@ -73,6 +73,21 @@ class Saucer:
             for z in range(100):
                 self.north(1)
                 await asyncio.sleep(0.2)
+            for x in range(500):
+                self.east(1)
+                await asyncio.sleep(0.2)
+            for x in range(500):
+                self.north(-1)
+                await asyncio.sleep(0.2)
+            for x in range(600):
+                self.east(-1)
+                await asyncio.sleep(0.2)
+            for z in range(600):
+                self.north(1)
+                await asyncio.sleep(0.2)
+            for x in range(100):
+                self.east(1)
+                await asyncio.sleep(0.2)
             for z in range(100):
                 self.north(-1)
                 await asyncio.sleep(0.2)
