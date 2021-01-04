@@ -11,8 +11,8 @@ import re
 # dump spawned items here - they will fall into the void
 dump = Vec3(0, 0, 0)
 
-concrete = Vec3(39, 29, -43)
 extract_item = re.compile(r".*minecraft\:(?:blocks\/)?(.+)$")
+listify = re.compile(r": \'minecraft\:[^\']*\'\>|\<")
 
 
 def grab(client: Client, start: Vec3, end: Vec3):
@@ -26,20 +26,32 @@ def grab(client: Client, start: Vec3, end: Vec3):
                 res = client.loot.spawn(dump).mine(loc)
                 match = extract_item.search(res)
                 name = match.group(1)
-                if name == 'empty':
-                    name = 'air'
+                if name == "empty":
+                    name = "air"
                 row.append(Item(f"minecraft:{name}"))
             profile.append(row)
         cube.append(profile)
     return cube
 
 
-# with Client("localhost", 25901, passwd="spider") as client:
-#     start = Vec3(36, 26, -44)
-#     end = Vec3(44, 34, -36)
+if __name__ == "__main__":
+    with Client("localhost", 25901, passwd="spider") as client:
+        # middle knot
+        start = Vec3(36, 26, -44)
+        end = Vec3(44, 34, -36)
+        # green saucer
+        start = Vec3(8, 40, -62)
+        end = Vec3(12, 43, -58)
 
-#     r = client.execute.if_.block(concrete, Item.BLUE_CONCRETE).run("seed")
-#     print(r)
+        concrete = Vec3(39, 29, -43)
 
-#     print(grab(client, start, end))
-#     pass
+        r = client.execute.if_.block(concrete, Item.BLUE_CONCRETE).run("seed")
+        print(r)
+
+        cube = grab(client, start, end)
+        print(cube)
+        print("\n\n")
+        # TODO the correct way to do this is to make Item jsonifyable but this is
+        # quick and dirty
+        cube_list = listify.sub('', str(cube))
+        print(cube_list)
