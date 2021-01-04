@@ -1,4 +1,5 @@
 import asyncio
+from typing import List
 from mcipc.rcon.builder import Item, Vec3
 from mcipc.rcon.je import Client
 import numpy as np
@@ -8,14 +9,19 @@ from helper import Helper
 
 class CubeRotator:
     def __init__(
-        self, client: Client, location: Vec3, size: int = 5, pause=0.5
+        self,
+        client: Client,
+        location: Vec3,
+        cube: List[List[List[Item]]] = None,
+        size: int = 5,
+        pause=0.5,
     ) -> None:
         self.client = client
         self.helper = Helper(client)
         self.running = False
         self.pause = pause
         self.location = location
-        self.cube = self.make_cube(size)
+        self.cube = cube or self.make_cube(size)
 
     def make_cube(self, size: int):
         half = int(size / 2)
@@ -40,17 +46,16 @@ class CubeRotator:
                 client.setblock(mid + Vec3(*idx), block)
 
     async def spin(self) -> None:
-        with Client("localhost", 25901, passwd="spider") as client:
-            self.running = True
+        self.running = True
 
-            ncube = np.array(self.cube, Item)
-            planes = [(0, 1), (0, 2), (1, 2)]
+        ncube = np.array(self.cube, Item)
+        planes = [(0, 1), (0, 2), (1, 2)]
 
-            solid = ncube != Item.AIR
+        solid = ncube != Item.AIR
 
-            while self.running:
-                for plane in planes:
-                    for rot in range(9):
-                        await asyncio.sleep(self.pause)
-                        await self.render(client, self.location, ncube, solid)
-                        ncube = np.rot90(ncube, axes=plane)
+        while self.running:
+            for plane in planes:
+                for rot in range(9):
+                    await asyncio.sleep(self.pause)
+                    await self.render(self.client, self.location, ncube, solid)
+                    ncube = np.rot90(ncube, axes=plane)

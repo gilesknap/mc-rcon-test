@@ -41,10 +41,12 @@ class Helper:
 
         names = [p.name for p in self.client.players.players]
         for name in names:
-            pos = self.player_pos(name)
-            if region.inside(pos, ytol):
-                result.append(name)
-
+            try:
+                pos = self.player_pos(name)
+                if region.inside(pos, ytol):
+                    result.append(name)
+            except ValueError:
+                pass  # players somtimes are missing temporarily
         return result
 
     def render_regions(self, regions: Regions, material: str):

@@ -20,6 +20,6 @@ class Player:
     def give_stop(self):
         nbt = (
             """{BlockEntityTag:{Text1:'{"text":"STOP Python"}', """
-            """Command:'{"test":"1"}'},display:{Name:'{"text":"Yo"}'}}"""
+            """Command:'{"test":"1"}'},display:{Name:'{"text":"STOP"}'}}"""
         )
         print(self.client.give(self.name, Item.BIRCH_SIGN.value+nbt))

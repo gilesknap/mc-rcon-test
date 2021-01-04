@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
 
+
+        {
+            "name": "Python: grab",
+            "type": "python",
+            "request": "launch",
+            "program": "grab.py",
+            "console": "integratedTerminal"
+        },
+
         {
             "name": "Python: test_button",
             "type": "python",
