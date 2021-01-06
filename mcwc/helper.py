@@ -1,9 +1,8 @@
 from typing import List
 from mcipc.rcon.enumerations import Item
 from mcwb import Vec3, Direction, mktunnel, Profile, Anchor
-from box import Box, Regions
+from mcwc.box import Box, Regions
 from mcipc.rcon.je import Client
-from mcipc.rcon import TargetType
 import re
 
 # Minecraft Coordinate System

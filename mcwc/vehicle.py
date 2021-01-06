@@ -3,10 +3,10 @@ from typing import List
 from mcipc.rcon.enumerations import Item
 from mcwb import Vec3, Direction
 from mcipc.rcon.je import Client
-from helper import Helper
+from mcwc.helper import Helper
 import numpy as np
 
-from shapes import default_vehicle
+from mcwc.shapes import default_vehicle
 
 
 class Vehicle:
@@ -86,9 +86,9 @@ class Vehicle:
         )
 
     def shift(self, arr, vec):
-        # this is a bit painful since I would hope numpy had this function.
-        # however it is very fast
-        result: np.ndarray = np.full_like(arr, Item.AIR)
+        # this is the fast approach, see 1d Benchmark at
+        # https://stackoverflow.com/questions/30399534/shift-elements-in-a-numpy-array
+        result: np.ndarray = np.full_like(arr, Item.AIR)  # type: ignore
         if vec.y > 0:
             result[:, : vec.y, :] = Item.AIR
             result[:, vec.y :, :] = arr[:, : -vec.y, :]

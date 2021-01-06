@@ -1,8 +1,8 @@
 from typing import NamedTuple
 
 from mcwb import Vec3, Direction
-from box import Box
-from helper import Helper
+from mcwc.box import Box
+from mcwc.helper import Helper
 from mcipc.rcon.je import Client
 from mcipc.rcon import MaskMode, CloneMode
 import asyncio
@@ -37,9 +37,7 @@ class Saucer:
 
     def _interior(self) -> Box:
         s, e = self.bounds.start, self.bounds.end
-        interior = Box(
-            Vec3(s.x + 1, s.y + 1, s.z + 1), Vec3(e.x - 1, s.y + 1, e.z - 1)
-        )
+        interior = Box(Vec3(s.x + 1, s.y + 1, s.z + 1), Vec3(e.x - 1, s.y + 1, e.z - 1))
         return interior
 
     def north(self, z: int, pause: float = 0.3) -> None:

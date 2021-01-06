@@ -5,7 +5,7 @@ from mcwb import Vec3
 from mcipc.rcon.je import Client
 import numpy as np
 
-from helper import Helper
+from mcwc.helper import Helper
 
 
 class CubeRotator:
