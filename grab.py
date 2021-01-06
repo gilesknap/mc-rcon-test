@@ -1,4 +1,5 @@
-from mcipc.rcon.builder import Vec3, Item
+from mcipc.rcon.enumerations import Item
+from mcwb import Vec3
 from mcipc.rcon.je import Client
 import re
 
@@ -28,7 +29,7 @@ def grab(client: Client, start: Vec3, end: Vec3):
                 name = match.group(1)
                 if name == "empty":
                     name = "air"
-                row.append(Item(f"minecraft:{name}"))
+                row.append(Item(name))
             profile.append(row)
         cube.append(profile)
     return cube

@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
-from mcipc.rcon.builder import Vec3, Direction
+from mcwb import Vec3, Direction
 from box import Box
 from helper import Helper
 from mcipc.rcon.je import Client

@@ -1,5 +1,5 @@
 from typing import List
-from mcipc.rcon.builder import Vec3, Direction
+from mcwb import Vec3, Direction
 
 Regions = List["Box"]
 

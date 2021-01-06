@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7aab413ef8d54a7bff860e718a7313596bceecf1840f416463dbe0b5c908143d"
+            "sha256": "41fa35de7ece702acf51dbb49b8682115d95a4aecaf53312091316e914af7415"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -121,8 +121,12 @@
             "version": "==0.35.0"
         },
         "mcipc": {
-            "git": "git://github.com/gilesknap/mcipc.git",
-            "ref": "cab17f7c13bd9e3784286e97777f59bdf24768cd"
+            "editable": true,
+            "path": "./../mcipc"
+        },
+        "mcwb": {
+            "editable": true,
+            "path": "./../mcwb"
         },
         "multidict": {
             "hashes": [
@@ -236,6 +240,12 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==1.2.2"
+        },
+        "setuptools-git-version": {
+            "hashes": [
+                "sha256:82cf7ab80272e20b7cae81d907e0adf295ef7a1f735418c046ae7f40f5861e15"
+            ],
+            "version": "==1.0.3"
         },
         "typing-extensions": {
             "hashes": [

@@ -1,6 +1,6 @@
 from typing import Callable, List
-from mcipc.rcon.builder import Vec3, Item
-from mcipc.rcon.enumerations import SetblockMode
+from mcwb import Vec3
+from mcipc.rcon.enumerations import Item, SetblockMode
 from mcipc.rcon.je import Client
 import asyncio
 

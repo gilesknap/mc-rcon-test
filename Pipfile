@@ -4,11 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-mcipc = {git = "git://github.com/gilesknap/mcipc.git"}
+mcipc = {editable = true, path = "./../mcipc"}
 numpy = "*"
 numba = "*"
 aiohttp = "*"
 aiofiles = "*"
+mcwb = {editable = true, path = "./../mcwb"}
 
 [dev-packages]
 black = "*"

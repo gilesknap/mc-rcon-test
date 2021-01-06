@@ -1,23 +1,16 @@
 import asyncio
 
-from mcipc.rcon.builder.types import Direction
+from mcwb.types import Direction, Vec3
 from grab import grab
 from button import Button
-from player import Player
+# from player import Player
 from test_anchor import test_anchor
 
 from helper import Helper
 from mcipc.rcon.je import Client
-from mcipc.rcon.builder import Vec3
 
 from saucer import Saucer
 from cube import CubeRotator
-
-
-def setup(client: Client):
-    # don't announce every rcon command
-    client.gamerule("sendCommandFeedback", False)
-
 
 # my server ports
 science = 25701
@@ -36,12 +29,16 @@ def changed(powered: bool, name: str, id: int):
 
 with Client("localhost", flat, passwd="spider") as client:
     helper = Helper(client)
-    setup(client)
 
+    # don't announce every rcon command
+    client.gamerule("sendCommandFeedback", False)
+
+    # will give stuff to players
     # player = Player(client, "TransformerScorn")
     # player.give_stop()
 
-    helper.clear_blocks(Vec3(0, 5, 0), 200)
+    # MIDDLE : helper.clear_blocks(Vec3(0, 5, 0), 200)
+    helper.clear_blocks(Vec3(-100, 5, -200), 200)
     test_anchor(client, Vec3(0, 30, -40))
 
     loc = Vec3(0, 4, -60)
@@ -69,7 +66,7 @@ with Client("localhost", flat, passwd="spider") as client:
         Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
         CubeRotator(client, Vec3(0, 5, 0), None, 10, 1.0).spin(),
         CubeRotator(client, Vec3(36, 26, -64), new_cube).spin(),
-        Button.monitor(client)
+        Button.monitor(client),
     ]
 
     asyncio.run(runloop(*runners))

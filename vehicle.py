@@ -1,7 +1,7 @@
 import asyncio
 from typing import List
-from mcipc.rcon.builder import Item, Vec3
-from mcipc.rcon.builder.types import Direction
+from mcipc.rcon.enumerations import Item
+from mcwb import Vec3, Direction
 from mcipc.rcon.je import Client
 from helper import Helper
 import numpy as np
@@ -88,25 +88,25 @@ class Vehicle:
     def shift(self, arr, vec):
         # this is a bit painful since I would hope numpy had this function.
         # however it is very fast
-        result = np.full_like(arr, Item.AIR)
+        result: np.ndarray = np.full_like(arr, Item.AIR)
         if vec.y > 0:
-            result[:, :vec.y, :] = Item.AIR
-            result[:, vec.y:, :] = arr[:, :-vec.y, :]
+            result[:, : vec.y, :] = Item.AIR
+            result[:, vec.y :, :] = arr[:, : -vec.y, :]
         elif vec.y < 0:
-            result[:, vec.y:, :] = Item.AIR
-            result[:, :vec.y, :] = arr[:, -vec.y:, :]
+            result[:, vec.y :, :] = Item.AIR
+            result[:, : vec.y, :] = arr[:, -vec.y :, :]
         if vec.x > 0:
-            result[:vec.x, :, :] = Item.AIR
-            result[vec.x:, :, :] = arr[:-vec.x, :, :]
+            result[: vec.x, :, :] = Item.AIR
+            result[vec.x :, :, :] = arr[: -vec.x, :, :]
         elif vec.x < 0:
-            result[vec.x:, :, :] = Item.AIR
-            result[:vec.x, :, :] = arr[-vec.x:, :, :]
+            result[vec.x :, :, :] = Item.AIR
+            result[: vec.x, :, :] = arr[-vec.x :, :, :]
         if vec.z > 0:
-            result[:, :, :vec.z:] = Item.AIR
-            result[:, :, vec.z:] = arr[:, :, :-vec.z]
+            result[:, :, : vec.z :] = Item.AIR
+            result[:, :, vec.z :] = arr[:, :, : -vec.z]
         elif vec.z < 0:
-            result[:, :, vec.z:] = Item.AIR
-            result[:, :, :vec.z] = arr[:, :, -vec.z:]
+            result[:, :, vec.z :] = Item.AIR
+            result[:, :, : vec.z] = arr[:, :, -vec.z :]
 
         return result
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         position = Vec3(36, 26, -90)
         v = Vehicle(client, position, cube=default_vehicle, pause=0.5)
 
-        #asyncio.run(v.render())
+        # asyncio.run(v.render())
         for i in range(10):
             asyncio.run(v.move(Direction.DOWN.value))
         for i in range(10):

@@ -1,8 +1,6 @@
 from typing import List
-from mcipc.rcon.builder import Vec3
-from mcipc.rcon.builder import Anchor, Direction, mktunnel
-from mcipc.rcon.builder.item import Item
-from mcipc.rcon.builder.types import Profile
+from mcipc.rcon.enumerations import Item
+from mcwb import Vec3, Direction, mktunnel, Profile, Anchor
 from box import Box, Regions
 from mcipc.rcon.je import Client
 from mcipc.rcon import TargetType
@@ -25,7 +23,7 @@ class Helper:
         self.client = client
 
     def player_pos(self, player_name: str) -> Vec3:
-        data = self.client.data.get(TargetType.ENTITY, player_name, "Pos")
+        data = self.client.data.get(entity=player_name, path="Pos")
         match = regex_coord.search(data)
         if match:
             result = Vec3(
@@ -61,5 +59,5 @@ class Helper:
             mid,
             direction=Direction.UP,
             length=size,
-            anchor=Anchor.MIDDLE,
+            anchor=Anchor.BOTTOM_LEFT,
         )

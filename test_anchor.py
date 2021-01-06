@@ -1,6 +1,5 @@
-from mcipc.rcon import FillMode
-from mcipc.rcon.builder import Item, Vec3, Direction, mktunnel, Profile
-from mcipc.rcon.builder.types import Anchor
+from mcipc.rcon.enumerations import FillMode, Item
+from mcwb import Vec3, Direction, mktunnel, Profile, Anchor
 from mcipc.rcon.je import Client
 
 
@@ -10,12 +9,13 @@ def knot(client: Client, mid: Vec3, a: Anchor):
         [Item.AIR, Item.AIR, Item.AIR],
         [Item.BLUE_CONCRETE, Item.AIR, Item.YELLOW_CONCRETE],
     ]
-    mktunnel(client, p, mid, direction=Direction.NORTH, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.SOUTH, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.EAST, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.WEST, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.UP, length=5, mode=FillMode.KEEP, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=FillMode.KEEP, anchor=a)
+    f = FillMode.KEEP
+    mktunnel(client, p, mid, direction=Direction.NORTH, length=5, mode=f, anchor=a)
+    mktunnel(client, p, mid, direction=Direction.SOUTH, length=5, mode=f, anchor=a)
+    mktunnel(client, p, mid, direction=Direction.EAST, length=5, mode=f, anchor=a)
+    mktunnel(client, p, mid, direction=Direction.WEST, length=5, mode=f, anchor=a)
+    mktunnel(client, p, mid, direction=Direction.UP, length=5, mode=f, anchor=a)
+    mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=f, anchor=a)
 
 
 def test_anchor(client, location):
@@ -27,5 +27,5 @@ def test_anchor(client, location):
     knot(client, mid, Anchor.BOTTOM_LEFT)  # joins at BLUE
     mid += Direction.EAST.value * 10
     knot(client, mid, Anchor.BOTTOM_RIGHT)  # joins at YELLOW
-    mid += Direction.EAST.value * 10
-    knot(client, mid, Anchor.MIDDLE)  # joins in center
+    # mid += Direction.EAST.value * 10
+    # knot(client, mid, Anchor.MIDDLE)  # joins in center

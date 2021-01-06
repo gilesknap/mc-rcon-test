@@ -1,6 +1,7 @@
 import asyncio
 from typing import List
-from mcipc.rcon.builder import Item, Vec3
+from mcipc.rcon.enumerations import Item
+from mcwb import Vec3
 from mcipc.rcon.je import Client
 import numpy as np
 
