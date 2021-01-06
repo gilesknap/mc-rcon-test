@@ -54,8 +54,8 @@ class Vehicle:
     async def move(self, vector: Vec3):
         self.old_loc = self.location
         self.location += vector
-        await self.render()
         self.move_players(vector)
+        await self.render()
         await asyncio.sleep(self.erase_pause)
         await self.unrender(vector)
         await asyncio.sleep(self.pause)
@@ -86,6 +86,8 @@ class Vehicle:
         )
 
     def shift(self, arr, vec):
+        # this is a bit painful since I would hope numpy had this function.
+        # however it is very fast
         result = np.full_like(arr, Item.AIR)
         if vec.y > 0:
             result[:, :vec.y, :] = Item.AIR

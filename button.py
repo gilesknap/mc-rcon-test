@@ -52,18 +52,30 @@ class Button:
         cls.monitoring = False
 
     @classmethod
+    def check_state(cls, client: Client, location: Vec3, state: str) -> bool:
+        res = client.execute.if_.block(location, state).run("seed")
+        if "Seed" in res:
+            result = True
+        elif res == "":
+            result = False
+        else:
+            raise RuntimeError(res)
+
+        return result
+
+    @classmethod
     async def monitor(cls, client: Client):
         cls.monitoring = True
         while cls.monitoring:
             await asyncio.sleep(0.1)
             for b in cls.buttons:
                 if b.powered:
-                    if client.execute.if_.block(b.location, b.off).run("seed"):
+                    if cls.check_state(client, b.location, b.off):
                         b.powered = False
                         if b.callback:
                             b.callback(False, b.name, b.id)
                 else:
-                    if client.execute.if_.block(b.location, b.on).run("seed"):
+                    if cls.check_state(client, b.location, b.on):
                         b.powered = True
                         if b.callback:
                             b.callback(True, b.name, b.id)

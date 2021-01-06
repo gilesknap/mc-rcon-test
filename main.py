@@ -24,15 +24,12 @@ science = 25701
 quest = 25575
 flat = 25901
 
-# NOTE checking for a block can be done with
-# /loot spawn 10000 10 10000 mine 0 54 0
-# but this will spawn the item at 10000 10 10000 s0 best to do entity kill too
-
 
 async def runloop(*runners):
     await asyncio.gather(*runners)
 
 
+# callback function for Button activation
 def changed(powered: bool, name: str, id: int):
     print(f"button {name}, id {id} powered:{powered}")
 
@@ -41,8 +38,8 @@ with Client("localhost", flat, passwd="spider") as client:
     helper = Helper(client)
     setup(client)
 
-    player = Player(client, "TransformerScorn")
-    player.give_stop()
+    # player = Player(client, "TransformerScorn")
+    # player.give_stop()
 
     helper.clear_blocks(Vec3(0, 5, 0), 200)
     test_anchor(client, Vec3(0, 30, -40))
@@ -72,6 +69,7 @@ with Client("localhost", flat, passwd="spider") as client:
         Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
         CubeRotator(client, Vec3(0, 5, 0), None, 10, 1.0).spin(),
         CubeRotator(client, Vec3(36, 26, -64), new_cube).spin(),
+        Button.monitor(client)
     ]
 
     asyncio.run(runloop(*runners))

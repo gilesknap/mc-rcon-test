@@ -37,17 +37,17 @@ class Helper:
 
     def players_in(self, region: Box, ytol: int = 0) -> List[str]:
         # return a list of player names found within a region
-        result = []
+        players = []
 
         names = [p.name for p in self.client.players.players]
         for name in names:
             try:
                 pos = self.player_pos(name)
                 if region.inside(pos, ytol):
-                    result.append(name)
+                    players.append(name)
             except ValueError:
                 pass  # players somtimes are missing temporarily
-        return result
+        return players
 
     def render_regions(self, regions: Regions, material: str):
         for box in regions:
