@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+mcwc = {editable = true,path = "."}
 mcipc = {editable = true, path = "./../mcipc"}
+mcwb = {editable = true, path = "./../mcwb"}
 numpy = "*"
-numba = "*"
 aiohttp = "*"
 aiofiles = "*"
-mcwb = {editable = true, path = "./../mcwb"}
 
 [dev-packages]
 black = "*"
@@ -21,3 +21,6 @@ python_version = "3.8"
 
 [pipenv]
 allow_prereleases = true
+
+[scripts]
+demo = "python -m demo"

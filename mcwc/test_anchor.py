@@ -18,14 +18,13 @@ def knot(client: Client, mid: Vec3, a: Anchor):
     mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=f, anchor=a)
 
 
-def test_anchor(client, location):
-    mid = location
-    knot(client, mid, Anchor.TOP_LEFT)  # all should join at RED
+def test_anchor(client: Client, mid: Vec3):
+    knot(client, mid, Anchor.TOP_LEFT)  # join at RED
     mid += Direction.EAST.value * 10
-    knot(client, mid, Anchor.TOP_RIGHT)  # all shouls join at GREEN
+    knot(client, mid, Anchor.TOP_RIGHT)  # join at GREEN
     mid += Direction.EAST.value * 10
-    knot(client, mid, Anchor.BOTTOM_LEFT)  # joins at BLUE
+    knot(client, mid, Anchor.BOTTOM_LEFT)  # join at BLUE
     mid += Direction.EAST.value * 10
-    knot(client, mid, Anchor.BOTTOM_RIGHT)  # joins at YELLOW
-    # mid += Direction.EAST.value * 10
-    # knot(client, mid, Anchor.MIDDLE)  # joins in center
+    knot(client, mid, Anchor.BOTTOM_RIGHT)  # join at YELLOW
+    mid += Direction.EAST.value * 10
+    knot(client, mid, Anchor.CENTRE)  # join in centre
