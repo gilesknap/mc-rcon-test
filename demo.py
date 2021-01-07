@@ -56,8 +56,8 @@ def demo():
         loc += Direction.EAST.value
         Button(client, loc, changed, True)
 
-        start = Vec3(36, 26, -44)
-        end = Vec3(44, 34, -36)
+        start = Vec3(44, 26, -44)
+        end = Vec3(52, 34, -36)
         new_cube = grab(client, start, end)
 
         runners = [

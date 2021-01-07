@@ -20,11 +20,11 @@ def knot(client: Client, mid: Vec3, a: Anchor):
 
 def test_anchor(client: Client, mid: Vec3):
     knot(client, mid, Anchor.TOP_LEFT)  # join at RED
-    mid += Direction.EAST.value * 10
+    mid += Direction.EAST.value * 12
     knot(client, mid, Anchor.TOP_RIGHT)  # join at GREEN
-    mid += Direction.EAST.value * 10
+    mid += Direction.EAST.value * 12
     knot(client, mid, Anchor.BOTTOM_LEFT)  # join at BLUE
-    mid += Direction.EAST.value * 10
+    mid += Direction.EAST.value * 12
     knot(client, mid, Anchor.BOTTOM_RIGHT)  # join at YELLOW
-    mid += Direction.EAST.value * 10
-    knot(client, mid, Anchor.CENTRE)  # join in centre
+    mid += Direction.EAST.value * 12
+    knot(client, mid, Anchor.MIDDLE)  # join in middle
