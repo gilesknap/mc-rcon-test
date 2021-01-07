@@ -7,6 +7,7 @@
 
 
 
+
         {
             "name": "Python: grab",
             "type": "python",
@@ -31,10 +32,10 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: main.py",
+            "name": "Python: demo.py",
             "type": "python",
             "request": "launch",
-            "program": "main.py",
+            "program": "demo.py",
             "console": "integratedTerminal"
         }
     ]

@@ -1,6 +1,7 @@
 from typing import List
 from mcipc.rcon.enumerations import Item
 from mcwb import Vec3, Direction, mktunnel, Profile, Anchor
+from mcwb.types import Row
 from mcwc.box import Box, Regions
 from mcipc.rcon.je import Client
 import re
@@ -58,5 +59,5 @@ class Helper:
             mid,
             direction=Direction.UP,
             length=size,
-            anchor=Anchor.BOTTOM_LEFT,
+            anchor=Anchor.MIDDLE,
         )

@@ -1,4 +1,5 @@
 import asyncio
+from mcwc.shapes import funky_cube
 
 from mcwb.types import Direction, Vec3
 from mcwc.grab import grab
@@ -11,7 +12,7 @@ from mcwc.helper import Helper
 from mcipc.rcon.je import Client
 
 from mcwc.saucer import Saucer
-from mcwc.cube import CubeRotator
+from mcwc.cuboid import Cuboid
 
 # my server ports
 science = 25701
@@ -40,10 +41,10 @@ def demo():
         # player.give_stop()
 
         # MIDDLE : helper.clear_blocks(Vec3(0, 5, 0), 200)
-        helper.clear_blocks(Vec3(-100, 5, -200), 200)
+        helper.clear_blocks(Vec3(0, 5, 0), 120)
         test_anchor(client, Vec3(0, 30, -40))
 
-        loc = Vec3(0, 4, -60)
+        loc = Vec3(0, 5, -49)
         Button(client, loc, changed)
         loc += Direction.EAST.value
         Button(client, loc, changed)
@@ -66,8 +67,8 @@ def demo():
             Saucer(client, Vec3(20, 40, -60), material="blue_concrete").run(),
             Saucer(client, Vec3(30, 40, -60), material="yellow_concrete").run(),
             Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
-            CubeRotator(client, Vec3(0, 5, 0), None, 10, 1.0).spin(),
-            CubeRotator(client, Vec3(36, 26, -64), new_cube).spin(),
+            Cuboid(client, Vec3(0, 5, 0), funky_cube(20), 1.0).spin(),
+            Cuboid(client, Vec3(48, 26, -64), new_cube).spin(),
             Button.monitor(client),
         ]
 
