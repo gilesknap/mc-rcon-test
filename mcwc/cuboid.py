@@ -26,7 +26,7 @@ class Cuboid:
         cube: List[List[List[Item]]] = None,
         anchor: Anchor3 = Anchor3.BOTTOM_NW,
         pause: float = 0,
-        erase_pause: float = 0.2,
+        erase_pause: float = 0.05,
     ) -> None:
         self.helper = Helper(client)
 
@@ -43,8 +43,6 @@ class Cuboid:
 
     def _update(self):
         self.solid = self.ncube != Item.AIR
-        # TODO remove
-        self.width, self.height, self.depth = self.ncube.shape
         self.volume = Volume(self.location, Vec3(*self.ncube.shape), self.anchor)
 
     async def render(self):
@@ -70,11 +68,12 @@ class Cuboid:
 
     async def rotate(self, plane: Planes3d, steps: int = 1, clear=False):
         """ rotate the blocks in the cuboid in place """
-        self.ncube = np.rot90(self.ncube, k=steps, axes=plane)
+        old_shape = self.ncube.shape
+        self.ncube = np.rot90(self.ncube, k=steps, axes=plane.value)
 
         # TODO implement unrender for rotated cuboid (challenging?)
         if clear:
-            Volume(self.location, Vec3(*self.ncube.shape), self.anchor).fill(
+            Volume(self.volume.start, Vec3(*old_shape), self.anchor).fill(
                 self.client
             )
         self._update()
@@ -94,6 +93,7 @@ class Cuboid:
     async def move(self, vector: Vec3):
         old_start = self.volume.start
         self.location += vector
+        self._update()
 
         await self.render()
         # this pause can help avoid a flickering appearance
@@ -142,16 +142,17 @@ if __name__ == "__main__":
             for i in range(40):
                 asyncio.run(v.move(Direction.UP.value))
             asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(150):
+            for i in range(80):
                 asyncio.run(v.move(Direction.EAST.value))
             asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(100):
+            for i in range(60):
                 asyncio.run(v.move(Direction.SOUTH.value))
             asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(150):
+            for i in range(80):
                 asyncio.run(v.move(Direction.WEST.value))
-            asyncio.run(v.rotate(Planes3d.XZ, steps=-1, clear=True))
-            for i in range(100):
+            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
+            for i in range(60):
                 asyncio.run(v.move(Direction.NORTH.value))
+            asyncio.run(v.rotate(Planes3d.XZ, steps=-1, clear=True))
             for i in range(40):
                 asyncio.run(v.move(Direction.DOWN.value))
