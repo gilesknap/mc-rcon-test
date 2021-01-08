@@ -1,9 +1,12 @@
-from typing import List
-from mcipc.rcon.enumerations import Item
-from mcwb import Vec3, Direction, mktunnel, Profile, Anchor, Anchor3
-from mcwc.box import Box, Regions
-from mcipc.rcon.je import Client
 import re
+from typing import List
+
+from mcipc.rcon.enumerations import Item
+from mcipc.rcon.je import Client
+from mcwb import Anchor, Direction, Vec3, mktunnel
+
+from mcwc.box import Box, Regions
+from mcwc.volume import Anchor3
 
 # Minecraft Coordinate System
 # plus Y is up
@@ -67,11 +70,22 @@ class Helper:
         elif anchor == Anchor3.BOTTOM_MIDDLE:
             start -= Vec3(1, 0, 1) * (size / 2).to_int()
         elif anchor == Anchor3.BOTTOM_NW:
-            start += Vec3(0, 0, size.z)
+            start += Vec3(0, 0, size.z - 1)
         else:
             # TODO support others
             raise ValueError("unsupported anchor")
 
-        # invert z so that posiitve size is positive North
-        size = size * Vec3(1, 1, -1) - 1
-        print(self.client.fill(start, start + size, Item.AIR.value))
+        # invert z so posiitve size is positive North, decrement to include start
+        size = (size - 1) * Vec3(1, 1, -1)
+        if size.volume < 32768:
+            self.client.fill(start, start + size, block.value)
+        else:
+            profile = [[block.value] * int(size.x)] * int(size.y)
+            mktunnel(
+                self.client,
+                profile,
+                start,
+                direction=Direction.UP,
+                anchor=Anchor.BOTTOM_LEFT,
+                length=int(size.dz)
+            )

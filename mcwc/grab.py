@@ -22,7 +22,7 @@ def grab(client: Client, start: Vec3, end: Vec3):
         profile = []
         for y in range(int(start.y), int(end.y + 1)):
             row = []
-            for z in range(int(end.z), int(start.z + 1)):
+            for z in range(int(end.z), int(start.z + 1), -1):
                 loc = Vec3(x, y, z)
                 res = client.loot.spawn(dump).mine(loc)
                 match = extract_item.search(res)

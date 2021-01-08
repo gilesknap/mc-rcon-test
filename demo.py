@@ -1,18 +1,15 @@
 import asyncio
-from mcwc.shapes import funky_cube
 
-from mcwb.types import Anchor3, Direction, Vec3
-from mcwc.grab import grab
-from mcwc.button import Button
-
-# from player import Player
-from mcwc.test_anchor import test_anchor
-
-from mcwc.helper import Helper
 from mcipc.rcon.je import Client
+from mcwb.types import Direction, Vec3
 
-from mcwc.saucer import Saucer
+from mcwc.button import Button
 from mcwc.cuboid import Cuboid
+from mcwc.grab import grab
+from mcwc.saucer import Saucer
+from mcwc.shapes import funky_cube
+from mcwc.test_anchor import test_anchor
+from mcwc.volume import Anchor3, Volume
 
 # my server ports
 science = 25701
@@ -31,8 +28,6 @@ def changed(powered: bool, name: str, id: int):
 
 def demo():
     with Client("localhost", flat, passwd="spider") as client:
-        helper = Helper(client)
-
         # don't announce every rcon command
         client.gamerule("sendCommandFeedback", False)
 
@@ -40,7 +35,8 @@ def demo():
         # player = Player(client, "TransformerScorn")
         # player.give_stop()
 
-        helper.fill_blocks(Vec3(0, 5, 0), Vec3(150, 150, 150))
+        v = Volume(Vec3(0, 5, 0), Vec3(150, 150, 150), anchor=Anchor3.BOTTOM_MIDDLE)
+        v.fill(client)
         test_anchor(client, Vec3(0, 30, -40))
 
         loc = Vec3(0, 5, -49)
@@ -66,8 +62,8 @@ def demo():
             Saucer(client, Vec3(20, 40, -60), material="blue_concrete").run(),
             Saucer(client, Vec3(30, 40, -60), material="yellow_concrete").run(),
             Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
-            Cuboid(client, Vec3(0, 5, 0), funky_cube(20), 1.0).spin(),
-            Cuboid(client, Vec3(48, 5, -40), new_cube).spin(),
+            Cuboid(client, Vec3(0, 5, 0), funky_cube(20), 1.0).spin(clear=True),
+            Cuboid(client, Vec3(48, 5, -40), new_cube, pause=2).spin(),
             Button.monitor(client),
         ]
 

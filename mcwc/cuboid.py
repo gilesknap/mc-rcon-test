@@ -1,14 +1,17 @@
 import asyncio
-from typing import List
-from mcipc.rcon.enumerations import Item
-from mcwb import Vec3, Direction, Anchor3
-from mcipc.rcon.je import Client
-from mcwc.enumerations import Planes3d
-import numpy as np
-from mcwc.helper import Helper
-from mcwc.functions import shift
-from mcwc.shapes import airplane2
 from time import sleep
+from typing import List
+
+import numpy as np
+from mcipc.rcon.enumerations import Item
+from mcipc.rcon.je import Client
+from mcwb import Direction, Vec3
+
+from mcwc.enumerations import Planes3d
+from mcwc.functions import shift
+from mcwc.helper import Helper
+from mcwc.shapes import airplane2
+from mcwc.volume import Anchor3, Volume
 
 
 class Cuboid:
@@ -17,8 +20,8 @@ class Cuboid:
         client: Client,
         location: Vec3,
         cube: List[List[List[Item]]] = None,
-        pause=0,
-        erase_pause=0.2,
+        pause: float = 0,
+        erase_pause: float = 0.2,
     ) -> None:
         self.helper = Helper(client)
 
@@ -61,10 +64,10 @@ class Cuboid:
         self.ncube = np.rot90(self.ncube, k=steps, axes=plane)
 
         # TODO implement unrender for rotated cuboid (challenging?)
-        if True:
-            self.helper.fill_blocks(
+        if clear:
+            Volume(
                 self.location, Vec3(*self.ncube.shape), Anchor3.BOTTOM_NW
-            )
+            ).fill(self.client)
         self._update()
         await self.render()
 

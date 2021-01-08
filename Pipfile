@@ -10,6 +10,8 @@ mcwb = {editable = true, path = "./../mcwb"}
 numpy = "*"
 aiohttp = "*"
 aiofiles = "*"
+flake8-isort = "*"
+isort = "*"
 
 [dev-packages]
 black = "*"
