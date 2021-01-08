@@ -62,7 +62,13 @@ def demo():
             Saucer(client, Vec3(20, 40, -60), material="blue_concrete").run(),
             Saucer(client, Vec3(30, 40, -60), material="yellow_concrete").run(),
             Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
-            Cuboid(client, Vec3(0, 5, 0), funky_cube(20), 1.0).spin(clear=True),
+            Cuboid(
+                client,
+                Vec3(0, 5, 0),
+                funky_cube(20),
+                anchor=Anchor3.BOTTOM_MIDDLE,
+                pause=1.0,
+            ).spin(clear=True),
             Cuboid(client, Vec3(48, 5, -40), new_cube, pause=2).spin(),
             Button.monitor(client),
         ]
