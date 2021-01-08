@@ -1,7 +1,7 @@
 import asyncio
 from mcwc.shapes import funky_cube
 
-from mcwb.types import Direction, Vec3
+from mcwb.types import Anchor3, Direction, Vec3
 from mcwc.grab import grab
 from mcwc.button import Button
 
@@ -40,8 +40,7 @@ def demo():
         # player = Player(client, "TransformerScorn")
         # player.give_stop()
 
-        # MIDDLE : helper.clear_blocks(Vec3(0, 5, 0), 200)
-        helper.clear_blocks(Vec3(0, 5, 0), 120)
+        helper.fill_blocks(Vec3(0, 5, 0), Vec3(150, 150, 150))
         test_anchor(client, Vec3(0, 30, -40))
 
         loc = Vec3(0, 5, -49)
@@ -68,7 +67,7 @@ def demo():
             Saucer(client, Vec3(30, 40, -60), material="yellow_concrete").run(),
             Saucer(client, Vec3(40, 40, -60), material="pink_concrete").run(),
             Cuboid(client, Vec3(0, 5, 0), funky_cube(20), 1.0).spin(),
-            Cuboid(client, Vec3(48, 26, -64), new_cube).spin(),
+            Cuboid(client, Vec3(48, 5, -40), new_cube).spin(),
             Button.monitor(client),
         ]
 

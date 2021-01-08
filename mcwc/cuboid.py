@@ -1,13 +1,13 @@
 import asyncio
 from typing import List
 from mcipc.rcon.enumerations import Item
-from mcwb import Vec3, Direction
+from mcwb import Vec3, Direction, Anchor3
 from mcipc.rcon.je import Client
 from mcwc.enumerations import Planes3d
 import numpy as np
 from mcwc.helper import Helper
 from mcwc.functions import shift
-from mcwc.shapes import vehicle
+from mcwc.shapes import airplane2
 from time import sleep
 
 
@@ -20,19 +20,22 @@ class Cuboid:
         pause=0,
         erase_pause=0.2,
     ) -> None:
-        self.client = client
         self.helper = Helper(client)
+
+        self.client = client
+        self.ncube = np.array(cube, dtype=Item)
         self.running = False
         self.pause = pause
         self.erase_pause = erase_pause
         self.location = location
         self.old_loc = location
-        self.ncube = np.array(cube, dtype=Item)
-        self.solid = self.ncube != Item.AIR
-        self.width, self.height, self.depth = self.ncube.shape
-        self.helper = Helper(client)
+        self._update()
 
         asyncio.run(self.render())
+
+    def _update(self):
+        self.solid = self.ncube != Item.AIR
+        self.width, self.height, self.depth = self.ncube.shape
 
     async def render(self):
         for idx, block in np.ndenumerate(self.ncube):
@@ -54,27 +57,34 @@ class Cuboid:
                 await asyncio.sleep(0)
                 self.client.setblock(self.old_loc + Vec3(*idx), Item.AIR.value)
 
-    async def rotate(self, plane: Planes3d, steps: int = 1):
+    async def rotate(self, plane: Planes3d, steps: int = 1, clear=False):
         self.ncube = np.rot90(self.ncube, k=steps, axes=plane)
+
+        # TODO implement unrender for rotated cuboid (challenging?)
+        if True:
+            self.helper.fill_blocks(
+                self.location, Vec3(*self.ncube.shape), Anchor3.BOTTOM_NW
+            )
+        self._update()
         await self.render()
 
     def stop(self):
         self.running = False
 
-    async def spin(self):
+    async def spin(self, clear: bool = False):
         self.running = True
         while self.running:
             for plane in Planes3d:
                 for rot in range(9):
-                    await self.rotate(plane.value)
+                    await self.rotate(plane.value, clear=clear)
                     await asyncio.sleep(self.pause)
 
     async def move(self, vector: Vec3):
         self.old_loc = self.location
         self.location += vector
         await self.render()
-        self.move_players(vector)
         await asyncio.sleep(self.erase_pause)
+        self.move_players(vector)
         await self.unrender(vector)
         await asyncio.sleep(self.pause)
 
@@ -111,20 +121,26 @@ class Cuboid:
 # standalone demo of this class
 if __name__ == "__main__":
     with Client("localhost", 25901, passwd="spider") as client:
-        position = Vec3(0, 4, -90)
-        v = Cuboid(client, position, cube=vehicle, pause=0.5)
+        position = Vec3(0, 5, -40)
+        v = Cuboid(client, position, cube=airplane2, pause=0)
 
         while True:
             while len(v.players_in()) == 0:
                 sleep(0.5)
+
+            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
             for i in range(40):
                 asyncio.run(v.move(Direction.UP.value))
+            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
             for i in range(150):
                 asyncio.run(v.move(Direction.EAST.value))
+            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
             for i in range(100):
                 asyncio.run(v.move(Direction.SOUTH.value))
+            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
             for i in range(150):
                 asyncio.run(v.move(Direction.WEST.value))
+            asyncio.run(v.rotate(Planes3d.XZ, steps=-1, clear=True))
             for i in range(100):
                 asyncio.run(v.move(Direction.NORTH.value))
             for i in range(40):

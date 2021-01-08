@@ -13,16 +13,16 @@ import re
 dump = Vec3(0, 0, 0)
 
 extract_item = re.compile(r".*minecraft\:(?:blocks\/)?(.+)$")
-listify = re.compile(r": \'minecraft\:[^\']*\'\>|\<")
+listify = re.compile(r": \'[^\']*\'\>|\<")
 
 
 def grab(client: Client, start: Vec3, end: Vec3):
     cube = []
-    for z in range(int(start.z), int(end.z + 1)):
+    for x in range(int(start.x + 1), int(end.x)):
         profile = []
         for y in range(int(start.y), int(end.y + 1)):
             row = []
-            for x in range(int(start.x), int(end.x + 1)):
+            for z in range(int(end.z), int(start.z + 1)):
                 loc = Vec3(x, y, z)
                 res = client.loot.spawn(dump).mine(loc)
                 match = extract_item.search(res)
@@ -37,22 +37,15 @@ def grab(client: Client, start: Vec3, end: Vec3):
 
 if __name__ == "__main__":
     with Client("localhost", 25901, passwd="spider") as client:
-        # middle knot
-        start = Vec3(36, 26, -44)
-        end = Vec3(44, 34, -36)
         # green saucer
-        start = Vec3(8, 40, -62)
-        end = Vec3(12, 43, -58)
-
-        concrete = Vec3(39, 29, -43)
-
-        r = client.execute.if_.block(concrete, Item.BLUE_CONCRETE).run("seed")
-        print(r)
+        start = Vec3(-1, 4, -83)
+        end = Vec3(5, 7, -93)
 
         cube = grab(client, start, end)
         print(cube)
         print("\n\n")
+
         # TODO the correct way to do this is to make Item jsonifyable but this is
         # quick and dirty
-        cube_list = listify.sub('', str(cube))
+        cube_list = listify.sub("", str(cube))
         print(cube_list)

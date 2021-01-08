@@ -1,7 +1,6 @@
 from typing import List
 from mcipc.rcon.enumerations import Item
-from mcwb import Vec3, Direction, mktunnel, Profile, Anchor
-from mcwb.types import Row
+from mcwb import Vec3, Direction, mktunnel, Profile, Anchor, Anchor3
 from mcwc.box import Box, Regions
 from mcipc.rcon.je import Client
 import re
@@ -51,13 +50,28 @@ class Helper:
         for box in regions:
             self.client.fill(box.start, box.end, material)
 
-    def clear_blocks(self, mid: Vec3, size: int):
-        clear: Profile = [[Item.AIR] * size] * size
-        mktunnel(
-            self.client,
-            clear,
-            mid,
-            direction=Direction.UP,
-            length=size,
-            anchor=Anchor.MIDDLE,
-        )
+    def fill_blocks(
+        self,
+        start: Vec3,
+        size: Vec3,
+        anchor: Anchor3 = Anchor3.BOTTOM_SE,
+        block: Item = Item.AIR,
+    ):
+        """
+        fills a 3d region of size from a start point
+        """
+        if anchor == Anchor3.BOTTOM_SE:
+            # size from here is already correct - other clauses are moving
+            # start to SE corner from the given corner
+            pass
+        elif anchor == Anchor3.BOTTOM_MIDDLE:
+            start -= Vec3(1, 0, 1) * (size / 2).to_int()
+        elif anchor == Anchor3.BOTTOM_NW:
+            start += Vec3(0, 0, size.z)
+        else:
+            # TODO support others
+            raise ValueError("unsupported anchor")
+
+        # invert z so that posiitve size is positive North
+        size = size * Vec3(1, 1, -1) - 1
+        print(self.client.fill(start, start + size, Item.AIR.value))
