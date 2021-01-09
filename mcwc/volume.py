@@ -32,24 +32,32 @@ class Volume:
 
     def __init__(
         self,
-        position: Vec3,
-        size: Vec3,
+        pos: Vec3,
+        size: Vec3 = None,
         anchor: Anchor3 = Anchor3.BOTTOM_SW,
+        end: Vec3 = None,  # oppsoite corner instead of size and anchor
     ):
+        if end is not None:
+            npos = Vec3(min(pos.x, end.x), min(pos.y, end.y), min(pos.z, end.z))
+            end = Vec3(max(pos.x, end.x), max(pos.y, end.y), max(pos.z, end.z))
+            pos = npos
+            size = end - pos + 1
+            anchor = Anchor3.BOTTOM_NW
+
         if anchor == Anchor3.BOTTOM_NW:
             # start -> start+size from bottom NW already describes the volume
             # because all axes are at a minimum at that corner
-            start = position
+            start = pos
         elif anchor == Anchor3.BOTTOM_SW:
-            start = position + Vec3(0, 0, -size.z + 1)
+            start = pos + Vec3(0, 0, -size.z + 1)
         elif anchor == Anchor3.BOTTOM_SE:
-            start = position + Vec3(-size.x + 1, 0, -size.z + 1)
+            start = pos + Vec3(-size.x + 1, 0, -size.z + 1)
         elif anchor == Anchor3.BOTTOM_NE:
-            start = position + Vec3(-size.x + 1, 0, 0)
+            start = pos + Vec3(-size.x + 1, 0, 0)
         elif anchor == Anchor3.BOTTOM_MIDDLE:
-            start = position - Vec3(1, 0, 1) * (size / 2).with_ints()
+            start = pos - Vec3(1, 0, 1) * (size / 2).with_ints()
         elif anchor == Anchor3.MIDDLE:
-            start = position - Vec3(1, 1, 1) * (size / 2).with_ints()
+            start = pos - Vec3(1, 1, 1) * (size / 2).with_ints()
         else:
             # TODO support TOP Anchor3
             raise ValueError("unsupported anchor")
@@ -58,7 +66,7 @@ class Volume:
         self.end = start + (size - 0)
         self.start = start
         self.size = size
-        self.position = position
+        self.position = pos
         self.anchor = anchor
 
     def fill(self, client: Client, block: Item = Item.AIR):

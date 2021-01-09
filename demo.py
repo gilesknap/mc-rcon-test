@@ -81,13 +81,14 @@ def demo():
                 (1, Direction.NORTH, 60),
                 (-1, Direction.DOWN, 40),
             ]
+            speed: int = 1
             while True:
                 await lever2_switched_on.wait()
                 start = datetime.now()
                 for rot, dir, dist in seq:
                     await cuboid.rotate_a(Planes3d.XZ, steps=rot, clear=True)
                     for _ in range(dist):
-                        await cuboid.move_a(dir.value)
+                        await cuboid.move_a(dir.value * speed)
                 elapsed = datetime.now() - start
                 print(f"the journey took {elapsed}")
 
@@ -109,6 +110,12 @@ def demo():
 
         pos = Vec3(0, 5, 0)
         fun_cube = Cuboid(client, pos, funky_cube(30), anchor=anchor, pause=1.0)
+
+        # copy village
+        # village_v = Volume(Vec3(146, 3, -325), end=Vec3(264, 15, -434))
+        # village = Cuboid.grab(client, village_v)
+        # print("village size:", village.volume.size)
+        # village.move(Vec3(260, 4, -200), clear=False)
 
         # middle of first knot from test_anchor
         pos = Vec3(0, 30, -60)
