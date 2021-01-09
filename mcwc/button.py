@@ -1,8 +1,9 @@
+import asyncio
 from typing import Callable, List
-from mcwb import Vec3
+
 from mcipc.rcon.enumerations import Item, SetblockMode
 from mcipc.rcon.je import Client
-import asyncio
+from mcwb import Vec3
 
 
 class Button:
@@ -17,7 +18,7 @@ class Button:
         self,
         client: Client,
         location: Vec3,
-        callback: Callable[[bool, str, int], None] = None,
+        callback: Callable[["Button"], None] = None,
         is_lever: bool = False,
         name: str = "",
     ) -> None:
@@ -41,6 +42,7 @@ class Button:
 
         # TODO pass values for orientation to the constructor
         fullitem = item + self.data_values.format("floor", "north", "false")
+        # TODO update Item to a class that can hold and render data values
         client.setblock(location, fullitem, mode=SetblockMode.REPLACE)
 
     def remove(self):
@@ -68,14 +70,14 @@ class Button:
         cls.monitoring = True
         while cls.monitoring:
             await asyncio.sleep(0.1)
-            for b in cls.buttons:
-                if b.powered:
-                    if cls.check_state(client, b.location, b.off):
-                        b.powered = False
-                        if b.callback:
-                            b.callback(False, b.name, b.id)
+            for button in cls.buttons:
+                if button.powered:
+                    if cls.check_state(client, button.location, button.off):
+                        button.powered = False
+                        if button.callback:
+                            button.callback(button)
                 else:
-                    if cls.check_state(client, b.location, b.on):
-                        b.powered = True
-                        if b.callback:
-                            b.callback(True, b.name, b.id)
+                    if cls.check_state(client, button.location, button.on):
+                        button.powered = True
+                        if button.callback:
+                            button.callback(button)

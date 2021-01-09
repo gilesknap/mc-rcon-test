@@ -1,8 +1,12 @@
+import re
+
 from mcipc.rcon.enumerations import Item
-# from mcwb import Vec3, Direction
-# from helper import Helper
 from mcipc.rcon.je import Client
-# import asyncio
+from mcwb import Vec3
+
+from mcwc.volume import Volume
+
+regex_coord = re.compile(r"\[(-?\d+.?\d*)d, *(-?\d+.?\d*)d, *(-?\d+.?\d*)d\]")
 
 
 class Player:
@@ -21,3 +25,30 @@ class Player:
             """Command:'{"test":"1"}'},display:{Name:'{"text":"STOP"}'}}"""
         )
         print(self.client.give(self.name, Item.BIRCH_SIGN.value+nbt))
+
+    @classmethod
+    def player_pos(cls, client: Client, player_name: str) -> Vec3:
+        data = client.data.get(entity=player_name, path="Pos")
+        match = regex_coord.search(data)
+        if match:
+            result = Vec3(
+                float(match.group(1)), float(match.group(2)), float(match.group(3))
+            )
+            return result
+        else:
+            raise ValueError(f"player {player_name} does not exist")
+
+    @classmethod
+    def players_in(cls, client: Client, volume: Volume):
+        """ return a list of player names whose position is inside the volume"""
+        players = []
+
+        names = [p.name for p in client.players.players]
+        for name in names:
+            try:
+                pos = cls.player_pos(client, name)
+                if volume.inside(pos, 2):
+                    players.append(name)
+            except ValueError:
+                pass  # players somtimes are missing temporarily
+        return players

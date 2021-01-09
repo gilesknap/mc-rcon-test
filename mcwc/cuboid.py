@@ -1,16 +1,14 @@
 import asyncio
-from time import sleep
 from typing import List
 
 import numpy as np
 from mcipc.rcon.enumerations import Item
 from mcipc.rcon.je import Client
-from mcwb import Direction, Vec3
+from mcwb import Vec3
 
 from mcwc.enumerations import Planes3d
 from mcwc.functions import shift
-from mcwc.helper import Helper
-from mcwc.shapes import airplane2
+from mcwc.player import Player
 from mcwc.volume import Anchor3, Volume
 
 
@@ -25,27 +23,27 @@ class Cuboid:
         location: Vec3,
         cube: List[List[List[Item]]] = None,
         anchor: Anchor3 = Anchor3.BOTTOM_NW,
+        move_players: bool = True,
         pause: float = 0,
-        erase_pause: float = 0.05,
+        erase_pause: float = 0.1,
     ) -> None:
-        self.helper = Helper(client)
-
         self.client = client
         self.ncube = np.array(cube, dtype=Item)
         self.anchor = anchor
+        self.teleport = move_players
         self.running = False
         self.pause = pause
         self.erase_pause = erase_pause
         self.location = location
         self._update()
 
-        asyncio.run(self.render())
+        asyncio.run(self._render())
 
     def _update(self):
         self.solid = self.ncube != Item.AIR
         self.volume = Volume(self.location, Vec3(*self.ncube.shape), self.anchor)
 
-    async def render(self):
+    async def _render(self):
         """ render the cuboid's blocks into Minecraft """
         for idx, block in np.ndenumerate(self.ncube):
             if self.solid[idx]:
@@ -53,7 +51,7 @@ class Cuboid:
                 await asyncio.sleep(0)
                 self.client.setblock(self.volume.start + Vec3(*idx), block)
 
-    async def unrender(self, vector: Vec3, old_start: Vec3) -> None:
+    async def _unrender(self, vector: Vec3, old_start: Vec3) -> None:
         """ clear away exposed blocks from the previous move """
         moved = shift(self.ncube, vector * 1)
 
@@ -66,93 +64,53 @@ class Cuboid:
                 await asyncio.sleep(0)
                 self.client.setblock(old_start + Vec3(*idx), Item.AIR.value)
 
-    async def rotate(self, plane: Planes3d, steps: int = 1, clear=False):
+    def rotate(self, plane: Planes3d, steps: int = 1, clear=True):
+        asyncio.run(self.rotate_a(plane, steps, clear))
+
+    async def rotate_a(self, plane: Planes3d, steps: int = 1, clear=True):
         """ rotate the blocks in the cuboid in place """
-        old_shape = self.ncube.shape
         self.ncube = np.rot90(self.ncube, k=steps, axes=plane.value)
 
         # TODO implement unrender for rotated cuboid (challenging?)
         if clear:
-            Volume(self.volume.start, Vec3(*old_shape), self.anchor).fill(
-                self.client
-            )
+            self.volume.fill(self.client)
         self._update()
-        await self.render()
+        await self._render()
+        await asyncio.sleep(self.pause)
 
     def stop(self):
         self.running = False
 
-    async def spin(self, clear: bool = False):
+    async def glide(self, new_location: Vec3):
+        """ asynchronously move to new location with self.pause secs between steps"""
+        #  TODO
         self.running = True
-        while self.running:
-            for plane in Planes3d:
-                for rot in range(9):
-                    await self.rotate(plane.value, clear=clear)
-                    await asyncio.sleep(self.pause)
 
-    async def move(self, vector: Vec3):
+    def move(self, vector: Vec3):
+        asyncio.run(self.move_a(vector))
+
+    async def move_a(self, vector: Vec3):
+        """ moves the cubiod in the world and redraws it """
         old_start = self.volume.start
         self.location += vector
         self._update()
 
-        await self.render()
+        await self._render()
         # this pause can help avoid a flickering appearance
         await asyncio.sleep(self.erase_pause)
 
         self.move_players(vector)
 
-        await self.unrender(vector, old_start)
+        await self._unrender(vector, old_start)
         await asyncio.sleep(self.pause)
 
     def move_players(self, vector: Vec3):
-        players = self.players_in()
+        """ moves any players within the cuboid by vector """
+        if self.teleport:
+            players = Player.players_in(self.client, self.volume)
 
-        for player in players:
-            pos = self.helper.player_pos(player)
-            pos += vector
+            for player in players:
+                pos = Player.player_pos(self.client, player)
+                pos += vector
 
-            self.client.teleport(targets=player, location=pos)
-
-    def players_in(self):
-        """ return a list of player names whose position is inside the volume"""
-        players = []
-
-        names = [p.name for p in self.client.players.players]
-        for name in names:
-            try:
-                pos = self.helper.player_pos(name)
-                if self.volume.inside(pos, 2):
-                    players.append(name)
-            except ValueError:
-                pass  # players somtimes are missing temporarily
-        return players
-
-
-# standalone demo of this class
-if __name__ == "__main__":
-    with Client("localhost", 25901, passwd="spider") as client:
-        position = Vec3(0, 5, -40)
-        v = Cuboid(client, position, cube=airplane2, pause=0)
-
-        while True:
-            while len(v.players_in()) == 0:
-                sleep(0.5)
-
-            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(40):
-                asyncio.run(v.move(Direction.UP.value))
-            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(80):
-                asyncio.run(v.move(Direction.EAST.value))
-            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(60):
-                asyncio.run(v.move(Direction.SOUTH.value))
-            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(80):
-                asyncio.run(v.move(Direction.WEST.value))
-            asyncio.run(v.rotate(Planes3d.XZ, steps=1, clear=True))
-            for i in range(60):
-                asyncio.run(v.move(Direction.NORTH.value))
-            asyncio.run(v.rotate(Planes3d.XZ, steps=-1, clear=True))
-            for i in range(40):
-                asyncio.run(v.move(Direction.DOWN.value))
+                self.client.teleport(targets=player, location=pos)
