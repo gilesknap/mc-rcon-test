@@ -1,6 +1,6 @@
 import asyncio
 import re
-from typing import List
+from typing import Any, List
 
 import numpy as np
 from mcipc.rcon.enumerations import Item
@@ -21,77 +21,83 @@ class Cuboid:
     def __init__(
         self,
         client: Client,
-        location: Vec3,
+        position: Vec3,
         cube: List[List[List[Item]]] = None,
+        ncube: Any = None,
         anchor: Anchor3 = Anchor3.BOTTOM_NW,
         move_players: bool = True,
         pause: float = 0,
         erase_pause: float = 0.1,
         render: bool = True,
     ) -> None:
-        self.client = client
-        self.ncube = np.array(cube, dtype=Item)
+        self._client = client
         self.anchor = anchor
+        self.ncube: np.ndarray = ncube or np.array(cube, dtype=Item)
+
+        self.volume = Volume(position, Vec3(*self.ncube.shape), self.anchor)
+        self._solid: Any = self.ncube != Item.AIR
+
         self.teleport = move_players
         self.pause = pause
         self.erase_pause = erase_pause
-        self.location = location
 
-        self._update()
         if render:
             asyncio.run(self._render())
-
-    def _update(self):
-        self.solid = self.ncube != Item.AIR
-        self.volume = Volume(self.location, Vec3(*self.ncube.shape), self.anchor)
 
     async def _render(self) -> None:
         """ render the cuboid's blocks into Minecraft """
         for idx, block in np.ndenumerate(self.ncube):
-            if self.solid[idx]:
+            if self._solid[idx]:
                 # allow for large items to render without blocking
                 await asyncio.sleep(0)
-                self.client.setblock(self.volume.start + Vec3(*idx), block)
+                self._client.setblock(self.volume.start + Vec3(*idx), block)
 
     async def _unrender(self, vector: Vec3, old_start: Vec3) -> None:
         """ clear away exposed blocks from the previous move """
         moved = shift(self.ncube, vector * 1)
 
-        mask = moved == Item.AIR
+        mask: Any = moved == Item.AIR
         mask = mask & (self.ncube != Item.AIR)
 
         for idx, block in np.ndenumerate(self.ncube):
             if mask[idx]:
                 # allow for large items to render without blocking
                 await asyncio.sleep(0)
-                self.client.setblock(old_start + Vec3(*idx), Item.AIR.value)
+                self._client.setblock(old_start + Vec3(*idx), Item.AIR.value)
 
     def rotate(self, plane: Planes3d, steps: int = 1, clear=True) -> None:
+        """ synchronous rotate """
         asyncio.run(self.rotate_a(plane, steps, clear))
 
     async def rotate_a(self, plane: Planes3d, steps: int = 1, clear=True) -> None:
         """ rotate the blocks in the cuboid in place """
         self.ncube = np.rot90(self.ncube, k=steps, axes=plane.value)
 
-        # TODO implement unrender for rotated cuboid (challenging?)
-        if clear:
-            self.volume.fill(self.client)
-        self._update()
+        if clear:  # TODO implement unrender for rotated cuboid (challenging?)
+            self.volume.fill(self._client)
+
+        self._solid = self.ncube != Item.AIR
+        self.volume = Volume(
+            self.volume.position, Vec3(*self.ncube.shape), self.anchor
+        )
+
         await self._render()
         await asyncio.sleep(self.pause)
 
-    async def glide(self, new_location: Vec3):
+    async def glide(self, new_position: Vec3):
         """ asynchronously move to new location with self.pause secs between steps"""
         #  TODO
 
     def move(self, vector: Vec3, clear: bool = True) -> None:
+        """ sychronous move """
         asyncio.run(self.move_a(vector, clear))
 
     async def move_a(self, vector: Vec3, clear: bool = True) -> None:
         """ moves the cubiod in the world and redraws it """
         old_start = self.volume.start
-        self.location += vector
-        self._update()
+        self.volume = Volume(
+            self.volume.position + vector, Vec3(*self.ncube.shape), self.anchor
+        )
 
         await self._render()
         self.move_players(vector)
@@ -105,18 +111,18 @@ class Cuboid:
     def move_players(self, vector: Vec3) -> None:
         """ moves any players within the cuboid by vector """
         if self.teleport:
-            players = Player.players_in(self.client, self.volume)
+            players = Player.players_in(self._client, self.volume)
 
             for player in players:
-                pos = Player.player_pos(self.client, player)
+                pos = Player.player_pos(self._client, player)
                 pos += vector
 
-                self.client.teleport(targets=player, location=pos)
+                self._client.teleport(targets=player, location=pos)
 
     dump = Vec3(0, 0, 0)
     extract_item = re.compile(r".*minecraft\:(?:blocks\/)?(.+)$")
     listify = re.compile(r": \'[^\']*\'\>|\<")
-    # crude conversion of str cube t0 list : cube_list = listify.sub("", str(cube))
+    # crude conversion of str cube to list : cube_list = listify.sub("", str(cube))
 
     @classmethod
     def grab(cls, client: Client, volume: Volume) -> "Cuboid":
@@ -138,4 +144,4 @@ class Cuboid:
                     row.append(Item(name))
                 profile.append(row)
             cube.append(profile)
-        return Cuboid(client, volume.position, cube, volume.anchor, render=False)
+        return Cuboid(client, volume.position, cube, anchor=volume.anchor, render=False)

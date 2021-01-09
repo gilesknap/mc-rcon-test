@@ -76,10 +76,15 @@ class Volume:
                 length=int(self.size.dz),
             )
 
-    def inside(self, pos: Vec3, ytol: int = 0) -> bool:
-        """ determine if pos is within the Volume """
+    def inside(self, position: Vec3, ytol: int = 0) -> bool:
+        """ determine if position is within the Volume """
         return (
-            self.start.x <= pos.x <= self.end.x
-            and self.start.y - ytol <= pos.y <= self.end.y + ytol
-            and self.start.z <= pos.z <= self.end.z
+            self.start.x <= position.x <= self.end.x
+            and self.start.y - ytol <= position.y <= self.end.y + ytol
+            and self.start.z <= position.z <= self.end.z
         )
+
+    def move(self, distance: Vec3) -> None:
+        """ move the volume's location in space by distance """
+        self.start += distance
+        self.position += distance

@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from mcipc.rcon.enumerations import FillMode
 from mcipc.rcon.item import Item
@@ -82,20 +83,23 @@ def demo():
 
         # move the vehicle cuboid through a sequence when lever2 is pulled
         async def move_vehicle(cuboid: Cuboid):
+            seq = [
+                (1, Direction.UP, 40),
+                (1, Direction.EAST, 30),
+                (1, Direction.SOUTH, 60),
+                (1, Direction.WEST, 30),
+                (1, Direction.NORTH, 60),
+                (-1, Direction.DOWN, 40),
+            ]
             while True:
                 await lever2_switched_on.wait()
-                seq = [
-                    (1, Direction.UP, 40),
-                    (1, Direction.EAST, 80),
-                    (1, Direction.SOUTH, 60),
-                    (1, Direction.WEST, 80),
-                    (1, Direction.NORTH, 60),
-                    (-1, Direction.DOWN, 40),
-                ]
+                start = datetime.now()
                 for rot, dir, dist in seq:
                     await cuboid.rotate_a(Planes3d.XZ, steps=rot, clear=True)
                     for _ in range(dist):
                         await cuboid.move_a(dir.value)
+                elapsed = datetime.now() - start
+                print(f"the journey took {elapsed}")
 
         # local for sharing between parties intersted in lever2 events
         lever2_switched_on = None
@@ -111,7 +115,7 @@ def demo():
 
         anchor = Anchor3.BOTTOM_MIDDLE
         pos = Vec3(0, 5, -40)
-        vehicle = Cuboid(client, pos, cube=airplane2, pause=0, anchor=anchor)
+        vehicle = Cuboid(client, pos, cube=airplane2, anchor=anchor, pause=0)
 
         pos = Vec3(0, 5, 0)
         anchor = Anchor3.BOTTOM_SE
