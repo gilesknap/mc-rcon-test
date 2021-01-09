@@ -96,3 +96,29 @@ class Volume:
         """ move the volume's location in space by distance """
         self.start += distance
         self.position += distance
+
+    def walls(
+        self,
+        client: Client,
+        block: Item,
+        top: bool = True,
+        bottom: bool = True,
+        n: bool = True,
+        s: bool = True,
+        e: bool = True,
+        w: bool = True,
+    ) -> None:
+        """ renders walls around the volume """
+        b = block.value
+        if n:
+            client.fill(self.start, Vec3(self.end.x, self.end.y, self.start.z), b)
+        if s:
+            client.fill(self.end, Vec3(self.start.x, self.start.y, self.end.z), b)
+        if w:
+            client.fill(self.start, Vec3(self.start.x, self.end.y, self.end.z), b)
+        if e:
+            client.fill(self.end, Vec3(self.end.x, self.start.y, self.start.z), b)
+        if top:
+            client.fill(self.end, Vec3(self.start.x, self.end.y, self.start.z), b)
+        if bottom:
+            client.fill(self.start, Vec3(self.end.x, self.start.y, self.end.z), b)
