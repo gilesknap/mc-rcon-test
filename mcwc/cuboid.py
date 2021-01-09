@@ -61,7 +61,7 @@ class Cuboid:
 
         for idx, block in np.ndenumerate(self.ncube):
             if mask[idx]:
-                # allow for large items to render without blocking
+                # allow for large items to unrender without blocking
                 await asyncio.sleep(0)
                 self._client.setblock(old_start + Vec3(*idx), Item.AIR.value)
 
@@ -120,7 +120,7 @@ class Cuboid:
     dump = Vec3(0, 0, 0)
     extract_item = re.compile(r".*minecraft\:(?:blocks\/)?(.+)$")
     listify = re.compile(r": \'[^\']*\'\>|\<")
-    # crude conversion of str cube to list : cube_list = listify.sub("", str(cube))
+    # crude conversion of cube to list : cube_list = listify.sub("", str(cube))
 
     @classmethod
     def grab(cls, client: Client, vol: Volume) -> "Cuboid":

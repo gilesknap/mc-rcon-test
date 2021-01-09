@@ -50,5 +50,5 @@ class Player:
                 if volume.inside(pos, 2):
                     players.append(name)
             except ValueError:
-                pass  # players somtimes are missing temporarily
+                pass  # players are sometimes missing temporarily
         return players
