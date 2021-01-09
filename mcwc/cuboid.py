@@ -27,12 +27,12 @@ class Cuboid:
         anchor: Anchor3 = Anchor3.BOTTOM_NW,
         move_players: bool = True,
         pause: float = 0,
-        erase_pause: float = 0.1,
+        erase_pause: float = 0.3,
         render: bool = True,
     ) -> None:
         self._client = client
         self.anchor = anchor
-        self.ncube: np.ndarray = ncube or np.array(cube, dtype=Item)
+        self.ncube = ncube if ncube is not None else np.array(cube, dtype=Item)
 
         self.volume = Volume(position, Vec3(*self.ncube.shape), self.anchor)
         self._solid: Any = self.ncube != Item.AIR
@@ -77,9 +77,7 @@ class Cuboid:
             self.volume.fill(self._client)
 
         self._solid = self.ncube != Item.AIR
-        self.volume = Volume(
-            self.volume.position, Vec3(*self.ncube.shape), self.anchor
-        )
+        self.volume = Volume(self.volume.position, Vec3(*self.ncube.shape), self.anchor)
 
         await self._render()
         await asyncio.sleep(self.pause)
@@ -125,23 +123,19 @@ class Cuboid:
     # crude conversion of str cube to list : cube_list = listify.sub("", str(cube))
 
     @classmethod
-    def grab(cls, client: Client, volume: Volume) -> "Cuboid":
+    def grab(cls, client: Client, vol: Volume) -> "Cuboid":
         """ copy blocks from a Volume in the minecraft world to create a cuboid """
-        cube = []
-        for x in range(int(volume.start.x), int(volume.end.x)):
-            profile = []
-            for y in range(int(volume.start.y), int(volume.end.y)):
-                row = []
-                for z in range(int(volume.start.z), int(volume.end.z)):
-                    loc = Vec3(x, y, z)
-                    res = client.loot.spawn(cls.dump).mine(loc)
-                    match = cls.extract_item.search(res)
-                    if not match:
-                        raise ValueError(f"loot spawn returned: {res}")
-                    name = match.group(1)
-                    if name == "empty":
-                        name = "air"
-                    row.append(Item(name))
-                profile.append(row)
-            cube.append(profile)
-        return Cuboid(client, volume.position, cube, anchor=volume.anchor, render=False)
+        ncube = np.ndarray(vol.size, dtype=Item)
+
+        for idx, _ in np.ndenumerate(ncube):
+            res = client.loot.spawn(cls.dump).mine(vol.start + Vec3(*idx))
+            match = cls.extract_item.search(res)
+            if not match:
+                raise ValueError(f"loot spawn returned: {res}")
+            name = match.group(1)
+            if name == "empty":
+                name = "air"
+            ncube[idx] = Item(name)
+
+        res = Cuboid(client, vol.position, ncube=ncube, anchor=vol.anchor, render=False)
+        return res

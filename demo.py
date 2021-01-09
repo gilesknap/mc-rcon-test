@@ -31,31 +31,21 @@ def setup(client):
     test_anchor(client, Vec3(0, 30, -60))
 
 
-def knot(client: Client, mid: Vec3, a: Anchor):
-    p: Profile = [
-        [Item.RED_CONCRETE, Item.AIR, Item.GREEN_CONCRETE],
-        [Item.AIR, Item.AIR, Item.AIR],
-        [Item.BLUE_CONCRETE, Item.AIR, Item.YELLOW_CONCRETE],
-    ]
-    f = FillMode.KEEP
-    mktunnel(client, p, mid, direction=Direction.NORTH, length=5, mode=f, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.SOUTH, length=5, mode=f, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.EAST, length=5, mode=f, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.WEST, length=5, mode=f, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.UP, length=5, mode=f, anchor=a)
-    mktunnel(client, p, mid, direction=Direction.DOWN, length=5, mode=f, anchor=a)
-
-
 def test_anchor(client: Client, mid: Vec3):
-    knot(client, mid, Anchor.TOP_LEFT)  # join at RED
-    mid += Direction.EAST.value * 12
-    knot(client, mid, Anchor.TOP_RIGHT)  # join at GREEN
-    mid += Direction.EAST.value * 12
-    knot(client, mid, Anchor.BOTTOM_LEFT)  # join at BLUE
-    mid += Direction.EAST.value * 12
-    knot(client, mid, Anchor.BOTTOM_RIGHT)  # join at YELLOW
-    mid += Direction.EAST.value * 12
-    knot(client, mid, Anchor.MIDDLE)  # join in middle
+    def knot(client: Client, mid: Vec3, a: Anchor):
+        p: Profile = [
+            [Item.RED_CONCRETE, Item.AIR, Item.GREEN_CONCRETE],
+            [Item.AIR, Item.AIR, Item.AIR],
+            [Item.BLUE_CONCRETE, Item.AIR, Item.YELLOW_CONCRETE],
+        ]
+        f = FillMode.KEEP
+        for d in Direction:
+            mktunnel(client, p, mid, direction=d, length=5, mode=f, anchor=a)
+
+    # join at red, green, blue, yellow, middle
+    for a in Anchor:
+        knot(client, mid, a)
+        mid += Direction.EAST.value * 12
 
 
 # spin a cuboid asynchronously forever
@@ -71,7 +61,7 @@ def demo():
         # callback function for Button activation
         def changed(switch: Button):
             print(f"button {switch.name}, powered:{switch.powered}")
-            if switch.id == lever1.id and switch.powered:
+            if switch.id == button2.id and switch.powered:
                 lever2_switched_on.set()
                 lever2_switched_on.clear()
 
@@ -109,7 +99,7 @@ def demo():
         pos = Vec3(-5, 5, -38)
         Button(client, pos, changed)
         pos += Direction.NORTH.value
-        lever1 = Button(client, pos, changed, True)
+        button2 = Button(client, pos, changed)
         pos += Direction.NORTH.value
         Button(client, pos, changed, True)
 
@@ -118,19 +108,22 @@ def demo():
         vehicle = Cuboid(client, pos, cube=airplane2, anchor=anchor, pause=0)
 
         pos = Vec3(0, 5, 0)
-        anchor = Anchor3.BOTTOM_SE
-        fun_cube = Cuboid(client, pos, funky_cube(20), anchor=anchor, pause=1.0)
+        fun_cube = Cuboid(client, pos, funky_cube(30), anchor=anchor, pause=1.0)
 
-        # middle of last knot from test_anchor
-        pos = Vec3(48, 30, -60)
-        knot = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
-        knot_cube = Cuboid.grab(client, knot)
-        knot_cube.pause = 30
-        knot_cube.move(Vec3(0, -15, 0), clear=False)
+        # middle of first knot from test_anchor
+        pos = Vec3(0, 30, -60)
+        # copy all 5 knots down by 12 blocks
+        for x in range(5):
+            knot = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
+            knot_cube = Cuboid.grab(client, knot)
+            knot_cube.pause = 2
+            knot_cube.move(Vec3(0, -12, 0), clear=False)
+            pos += Vec3(12, 0, 0)
+
         # TODO create a McTask base class which packages up all async stuff
         tasks = [
             spin(fun_cube, clear=False),
-            spin(knot_cube),
+            spin(knot_cube, clear=False),  # type: ignore
             move_vehicle(vehicle),
             Button.monitor(client),
         ]

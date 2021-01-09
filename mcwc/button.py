@@ -14,6 +14,7 @@ class Button:
     data_values = "[face={}, facing={}, powered={}]"
     monitoring = False
 
+    # TODO make this generic for all activating blocks including Skulk Sensors
     def __init__(
         self,
         client: Client,
