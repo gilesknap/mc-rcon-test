@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from pathlib import Path
 
 from mcipc.rcon.enumerations import FillMode
 from mcipc.rcon.item import Item
@@ -10,8 +11,9 @@ from mcwb import Anchor, Direction, Profile, Vec3, mktunnel
 from mcwc.button import Button
 from mcwc.cuboid import Cuboid
 from mcwc.enumerations import Planes3d
-from mcwc.shapes import airplane2, funky_cube
 from mcwc.volume import Anchor3, Volume
+
+shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
 
 # my server ports
 science = 25701
@@ -27,8 +29,23 @@ def setup(client):
     erase = Volume(Vec3(0, 5, 0), Vec3(150, 150, 150), anchor=Anchor3.BOTTOM_MIDDLE)
     erase.fill(client)
 
-    # make some pretty knots to demo tunnel and anchors
-    test_anchor(client, Vec3(0, 30, -60))
+
+def funky_cube(size: int):
+    half = int(size / 2)
+    size = 2 * half
+
+    left = [Item.RED_CONCRETE] * size
+    right = [Item.GREEN_CONCRETE] * size
+    row = [Item.BLUE_CONCRETE] + [Item.AIR] * (size - 2) + [Item.YELLOW_CONCRETE]
+    square = [left] + [row] * (size - 2) + [right]
+
+    top = [
+        [Item.WHITE_CONCRETE, Item.GRAY_CONCRETE] * half,
+        [Item.GRAY_CONCRETE, Item.WHITE_CONCRETE] * half,
+    ] * half
+    bottom = [[Item.BLACK_CONCRETE, Item.GRAY_CONCRETE] * half] * size
+
+    return [top] + [square] * (size - 2) + [bottom]
 
 
 def test_anchor(client: Client, mid: Vec3):
@@ -106,7 +123,9 @@ def demo():
 
         anchor = Anchor3.BOTTOM_MIDDLE
         pos = Vec3(0, 5, -40)
-        vehicle = Cuboid(client, pos, cube=airplane2, anchor=anchor, pause=0)
+
+        plane_json = Cuboid.load(shapes_folder / "airplane.json")
+        airplane = Cuboid(client, pos, plane_json, anchor=anchor, pause=0)
 
         pos = Vec3(0, 5, 0)
         fun_cube = Cuboid(client, pos, funky_cube(30), anchor=anchor, pause=1.0)
@@ -117,21 +136,29 @@ def demo():
         # print("village size:", village.volume.size)
         # village.move(Vec3(260, 4, -200), clear=False)
 
-        # middle of first knot from test_anchor
+        # make some pretty knots to demo tunnel and anchors
         pos = Vec3(0, 30, -60)
+        test_anchor(client, pos)
+
         # copy all 5 knots down by 12 blocks
+        # do it using files to prove save and load
         for x in range(5):
             knot = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
             knot_cube = Cuboid.grab(client, knot)
-            knot_cube.pause = 2
-            knot_cube.move(Vec3(0, -12, 0), clear=False)
+            knot_cube.save(Path("/tmp") / f"knot{x}.json")
+
+            knot_json = Cuboid.load(Path("/tmp") / f"knot{x}.json")
+            knot_read = Cuboid(client, knot.position, knot_json, anchor=Anchor3.MIDDLE)
+            knot_read.pause = 2
+            knot_read.move(Vec3(0, -12, 0), clear=False)
+
             pos += Vec3(12, 0, 0)
 
         # TODO create a McTask base class which packages up all async stuff
         tasks = [
             spin(fun_cube, clear=False),
-            spin(knot_cube, clear=False),  # type: ignore
-            move_vehicle(vehicle),
+            spin(knot_read, clear=False),  # type: ignore
+            move_vehicle(airplane),
             Button.monitor(client),
         ]
 

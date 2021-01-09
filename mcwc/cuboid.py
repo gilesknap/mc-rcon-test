@@ -1,6 +1,9 @@
 import asyncio
+import codecs
+import json
 import re
-from typing import Any, List
+from pathlib import Path
+from typing import Any, List, Union
 
 import numpy as np
 from mcipc.rcon.enumerations import Item
@@ -117,10 +120,37 @@ class Cuboid:
 
                 self._client.teleport(targets=player, location=pos)
 
+    def save(self, filename: Path) -> None:
+        """ save the contents of the cuboid to a json file """
+
+        def json_item(item: Item):
+            return {"__Item__": item.value}
+
+        save_list = self.ncube.tolist()
+        json.dump(
+            save_list,
+            codecs.open(str(filename), "w", encoding="utf-8"),
+            separators=(",", ":"),
+            sort_keys=True,
+            indent=4,
+            default=json_item,
+        )
+
+    @classmethod
+    def load(cls, filename: Union[Path, str]) -> None:
+        def as_item(d):
+            if "__Item__" in d:
+                return Item(d["__Item__"])
+            else:
+                return d
+
+        """ load a previously saved file - returns a list of list of list of Item """
+        return json.load(
+            codecs.open(str(filename), "r", encoding="utf-8"), object_hook=as_item
+        )
+
     dump = Vec3(0, 0, 0)
     extract_item = re.compile(r".*minecraft\:(?:blocks\/)?(.+)$")
-    listify = re.compile(r": \'[^\']*\'\>|\<")
-    # crude conversion of cube to list : cube_list = listify.sub("", str(cube))
 
     @classmethod
     def grab(cls, client: Client, vol: Volume) -> "Cuboid":
