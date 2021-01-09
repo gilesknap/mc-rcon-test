@@ -32,31 +32,34 @@ class Volume:
 
     def __init__(
         self,
-        start: Vec3,
+        position: Vec3,
         size: Vec3,
         anchor: Anchor3 = Anchor3.BOTTOM_SW,
     ):
         if anchor == Anchor3.BOTTOM_NW:
             # start -> start+size from bottom NW already describes the volume
             # because all axes are at a minimum at that corner
-            pass
+            start = position
         elif anchor == Anchor3.BOTTOM_SW:
-            start += Vec3(0, 0, -size.z + 1)
+            start = position + Vec3(0, 0, -size.z + 1)
         elif anchor == Anchor3.BOTTOM_SE:
-            start += Vec3(-size.x + 1, 0, -size.z + 1)
+            start = position + Vec3(-size.x + 1, 0, -size.z + 1)
         elif anchor == Anchor3.BOTTOM_NE:
-            start += Vec3(-size.x + 1, 0, 0)
+            start = position + Vec3(-size.x + 1, 0, 0)
         elif anchor == Anchor3.BOTTOM_MIDDLE:
-            start -= Vec3(1, 0, 1) * (size / 2).with_ints()
+            start = position - Vec3(1, 0, 1) * (size / 2).with_ints()
+        elif anchor == Anchor3.MIDDLE:
+            start = position - Vec3(1, 1, 1) * (size / 2).with_ints()
         else:
-            # TODO support remaining Anchor3
+            # TODO support TOP Anchor3
             raise ValueError("unsupported anchor")
 
         # decrement 1 to include start block
-        self.end = start + (size - 1)
+        self.end = start + (size - 0)
         self.start = start
-        # invert z so posiitve size is positive North
         self.size = size
+        self.position = position
+        self.anchor = anchor
 
     def fill(self, client: Client, block: Item = Item.AIR):
         """ Fill the Volume with a single block type, supports large volumes """

@@ -9,7 +9,6 @@ from mcwb import Anchor, Direction, Profile, Vec3, mktunnel
 from mcwc.button import Button
 from mcwc.cuboid import Cuboid
 from mcwc.enumerations import Planes3d
-from mcwc.grab import grab
 from mcwc.shapes import airplane2, funky_cube
 from mcwc.volume import Anchor3, Volume
 
@@ -115,16 +114,20 @@ def demo():
         vehicle = Cuboid(client, pos, cube=airplane2, pause=0, anchor=anchor)
 
         pos = Vec3(0, 5, 0)
+        anchor = Anchor3.BOTTOM_SE
         fun_cube = Cuboid(client, pos, funky_cube(20), anchor=anchor, pause=1.0)
 
-        start = Vec3(44, 26, -44)
-        end = Vec3(52, 34, -36)
-        new_cube = grab(client, start, end)
+        # middle of last knot from test_anchor
+        pos = Vec3(48, 30, -60)
+        knot = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
+        knot_cube = Cuboid.grab(client, knot)
+        knot_cube.pause = 30
+        knot_cube.move(Vec3(0, -15, 0), clear=False)
         # TODO create a McTask base class which packages up all async stuff
         tasks = [
             spin(fun_cube, clear=False),
+            spin(knot_cube),
             move_vehicle(vehicle),
-            # Cuboid(client, Vec3(48, 5, -40), new_cube, pause=2),
             Button.monitor(client),
         ]
 
