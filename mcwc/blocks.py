@@ -65,8 +65,7 @@ class Blocks:
         """ clear away exposed blocks from the previous move """
         moved = shift(self.ncube, vector * 1)
 
-        mask: Any = moved == Item.AIR
-        mask = mask & (self.ncube != Item.AIR)
+        mask: Any = (moved == Item.AIR) & (self.ncube != Item.AIR)
 
         for idx, block in np.ndenumerate(self.ncube):
             if mask[idx]:

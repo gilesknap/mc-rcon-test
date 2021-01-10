@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 from mcipc.rcon.enumerations import FillMode
 from mcipc.rcon.item import Item
@@ -12,7 +13,7 @@ from mcwc.blocks import Blocks
 # TODO tidy module exports in __init__
 from mcwc.button import Button
 from mcwc.enumerations import Planes3d
-from mcwc.itemlists import Cuboid, grab, load, save
+from mcwc.itemlists import Cuboid, grab, load_cuboid, save
 from mcwc.volume import Anchor3, Volume
 
 shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
@@ -47,7 +48,7 @@ def funky_cube(size: int) -> Cuboid:
     ] * half
     bottom = [[Item.BLACK_CONCRETE, Item.GRAY_CONCRETE] * half] * size
 
-    return [top] + [square] * (size - 2) + [bottom]
+    return cast(Cuboid, [top] + [square] * (size - 2) + [bottom])
 
 
 def test_anchor(client: Client, mid: Vec3):
@@ -68,7 +69,7 @@ def test_anchor(client: Client, mid: Vec3):
 
 
 # spin a cuboid asynchronously forever
-async def spin(cuboid: Blocks, clear: bool = True):
+async def spin(cuboid: Blocks, clear: bool = False):
     while True:
         for plane in Planes3d:
             for _ in range(9):
@@ -126,7 +127,7 @@ def demo():
         anchor = Anchor3.BOTTOM_MIDDLE
         pos = Vec3(0, 5, -40)
 
-        plane_json = load(shapes_folder / "airplane.json")
+        plane_json = load_cuboid(shapes_folder / "airplane.json")
         airplane = Blocks(client, pos, plane_json, anchor=anchor, pause=0)
 
         pos = Vec3(0, 5, 0)
@@ -149,7 +150,7 @@ def demo():
             knot_cuboid = grab(client, knot_vol)
             save(knot_cuboid, Path("/tmp") / f"knot{x}.json")
 
-            knot_cuboid_read = load(Path("/tmp") / f"knot{x}.json")
+            knot_cuboid_read = load_cuboid(Path("/tmp") / f"knot{x}.json")
             knot_blocks = Blocks(
                 client, knot_vol.position, knot_cuboid_read, anchor=Anchor3.MIDDLE
             )
@@ -160,8 +161,8 @@ def demo():
 
         # TODO create a McTask base class which packages up all async stuff
         tasks = [
-            spin(fun_cube, clear=False),
-            spin(knot_blocks, clear=False),  # type: ignore
+            spin(fun_cube),
+            spin(knot_blocks),  # type: ignore
             move_vehicle(airplane),
             Button.monitor(client),
         ]

@@ -1,5 +1,4 @@
 import numpy as np
-
 from mcipc.rcon.enumerations import Item
 from mcwb import Vec3
 

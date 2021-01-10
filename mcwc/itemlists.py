@@ -1,29 +1,41 @@
 """
 Functions for manipulating lists of Items
-    1d = Row
     2d = Profile
     3d = Cuboid
 """
+
 import codecs
 import json
 import re
 from pathlib import Path
-from typing import Union, List
+from typing import List, Union, cast
 
 import numpy as np
 from mcipc.rcon.enumerations import Item
 from mcipc.rcon.je import Client
 from mcwb import Profile, Row, Vec3
+from mcwb.functions import validate
 
 from mcwc.volume import Volume
 
-# this perhaps should be in mcwb/type.py
 Cuboid = List[Profile]
 Items = Union[Cuboid, Profile, Row]
 
 
+def validate_cuboid(cuboid: Cuboid):
+    ncube = np.array(cuboid)
+    if ncube.ndim != 3:
+        raise ValueError("wrong dimensions for cuboid")
+
+    xdim = len(ncube[:, 0, 0])
+    ydim = len(ncube[0, :, 0])
+    zdim = len(ncube[0, 0, :])
+
+    return xdim * ydim * zdim == ncube.size
+
+
 def save(items: Items, filename: Path) -> None:
-    """ save lists of Items to a json file """
+    """ save a Profile or Cuboid (or Row) to a json file """
 
     def json_item(item: Item):
         return {"__Item__": item.value}
@@ -38,14 +50,32 @@ def save(items: Items, filename: Path) -> None:
     )
 
 
+def load_cuboid(filename: Union[Path, str]):
+    """ load a cuboid from a json file """
+    cuboid = cast(Cuboid, load(filename))
+    if not validate_cuboid(cuboid):
+        raise ValueError(f"file {filename} does not contain a cuboid")
+    return cuboid
+
+
+def load_profile(filename: Union[Path, str]) -> Profile:
+    """ load a profile from a json file """
+    profile = cast(Profile, load(filename))
+    if not validate(profile):
+        raise ValueError(f"file {filename} does not contain a profile")
+    return profile
+
+
 def load(filename: Union[Path, str]) -> Items:
+    """ load a nested list of Item from json file """
+
     def as_item(d):
         if "__Item__" in d:
             return Item(d["__Item__"])
         else:
             return d
 
-    """ load a previously saved json file - returns lists of Item """
+    """ load a previously saved json file - returns a Cuboid or Profile or Row"""
     result = json.load(
         codecs.open(str(filename), "r", encoding="utf-8"), object_hook=as_item
     )
