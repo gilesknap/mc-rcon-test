@@ -7,10 +7,12 @@ from mcipc.rcon.item import Item
 from mcipc.rcon.je import Client
 from mcwb import Anchor, Direction, Profile, Vec3, mktunnel
 
+from mcwc.blocks import Blocks
+
 # TODO tidy module exports in __init__
 from mcwc.button import Button
-from mcwc.cuboid import Cuboid
 from mcwc.enumerations import Planes3d
+from mcwc.itemlists import Cuboid, grab, load, save
 from mcwc.volume import Anchor3, Volume
 
 shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
@@ -30,7 +32,7 @@ def setup(client):
     erase.fill(client)
 
 
-def funky_cube(size: int):
+def funky_cube(size: int) -> Cuboid:
     half = int(size / 2)
     size = 2 * half
 
@@ -66,7 +68,7 @@ def test_anchor(client: Client, mid: Vec3):
 
 
 # spin a cuboid asynchronously forever
-async def spin(cuboid: Cuboid, clear: bool = True):
+async def spin(cuboid: Blocks, clear: bool = True):
     while True:
         for plane in Planes3d:
             for _ in range(9):
@@ -89,7 +91,7 @@ def demo():
             await asyncio.gather(*tasks)
 
         # move the vehicle cuboid through a sequence when lever2 is pulled
-        async def move_vehicle(cuboid: Cuboid):
+        async def move_vehicle(cuboid: Blocks):
             seq = [
                 (1, Direction.UP, 40),
                 (1, Direction.EAST, 30),
@@ -124,11 +126,11 @@ def demo():
         anchor = Anchor3.BOTTOM_MIDDLE
         pos = Vec3(0, 5, -40)
 
-        plane_json = Cuboid.load(shapes_folder / "airplane.json")
-        airplane = Cuboid(client, pos, plane_json, anchor=anchor, pause=0)
+        plane_json = load(shapes_folder / "airplane.json")
+        airplane = Blocks(client, pos, plane_json, anchor=anchor, pause=0)
 
         pos = Vec3(0, 5, 0)
-        fun_cube = Cuboid(client, pos, funky_cube(30), anchor=anchor, pause=1.0)
+        fun_cube = Blocks(client, pos, funky_cube(30), anchor=anchor, pause=1.0)
 
         # copy village
         # village_v = Volume(Vec3(146, 3, -325), end=Vec3(264, 15, -434))
@@ -143,21 +145,23 @@ def demo():
         # copy all 5 knots down by 12 blocks
         # do it using files to prove save and load
         for x in range(5):
-            knot = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
-            knot_cube = Cuboid.grab(client, knot)
-            knot_cube.save(Path("/tmp") / f"knot{x}.json")
+            knot_vol = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
+            knot_cuboid = grab(client, knot_vol)
+            save(knot_cuboid, Path("/tmp") / f"knot{x}.json")
 
-            knot_json = Cuboid.load(Path("/tmp") / f"knot{x}.json")
-            knot_read = Cuboid(client, knot.position, knot_json, anchor=Anchor3.MIDDLE)
-            knot_read.pause = 2
-            knot_read.move(Vec3(0, -12, 0), clear=False)
+            knot_cuboid_read = load(Path("/tmp") / f"knot{x}.json")
+            knot_blocks = Blocks(
+                client, knot_vol.position, knot_cuboid_read, anchor=Anchor3.MIDDLE
+            )
+            knot_blocks.pause = 2
+            knot_blocks.move(Vec3(0, -12, 0), clear=False)
 
             pos += Vec3(12, 0, 0)
 
         # TODO create a McTask base class which packages up all async stuff
         tasks = [
             spin(fun_cube, clear=False),
-            spin(knot_read, clear=False),  # type: ignore
+            spin(knot_blocks, clear=False),  # type: ignore
             move_vehicle(airplane),
             Button.monitor(client),
         ]

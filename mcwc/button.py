@@ -5,7 +5,7 @@ from mcipc.rcon.enumerations import Item, SetblockMode
 from mcipc.rcon.je import Client
 from mcwb import Vec3
 
-
+# TODO make this generic for all activating blocks including Skulk Sensors
 class Button:
     buttons: List["Button"] = []
     button_id: int = 0
@@ -14,7 +14,6 @@ class Button:
     data_values = "[face={}, facing={}, powered={}]"
     monitoring = False
 
-    # TODO make this generic for all activating blocks including Skulk Sensors
     def __init__(
         self,
         client: Client,

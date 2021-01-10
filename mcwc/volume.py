@@ -17,9 +17,10 @@ class Volume:
         pos: Vec3,
         size: Vec3 = None,
         anchor: Anchor3 = Anchor3.BOTTOM_SW,
-        end: Vec3 = None,  # oppsoite corner instead of size and anchor
+        end: Vec3 = None,  # opposite corner instead of size and anchor
     ):
         if end is not None:
+            # normalize start, end so all start coordinates are minima
             npos = Vec3(min(pos.x, end.x), min(pos.y, end.y), min(pos.z, end.z))
             end = Vec3(max(pos.x, end.x), max(pos.y, end.y), max(pos.z, end.z))
             pos = npos

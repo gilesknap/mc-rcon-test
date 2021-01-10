@@ -1,9 +1,5 @@
 import asyncio
-import codecs
-import json
-import re
-from pathlib import Path
-from typing import Any, List, Union
+from typing import Any
 
 import numpy as np
 from mcipc.rcon.enumerations import Item
@@ -12,23 +8,25 @@ from mcwb import Vec3
 
 from mcwc.enumerations import Anchor3, Planes3d
 from mcwc.functions import shift
+from mcwc.itemlists import Cuboid
 from mcwc.player import Player
 from mcwc.volume import Volume
 
 
-class Cuboid:
+class Blocks:
     """
-    Represents a cubiod of arbitrary blocks in a minecraft world
+    Represents a cubiod of arbitrary blocks in a minecraft world with functions
+    for manipulating those blocks
     """
 
     def __init__(
         self,
         client: Client,
         position: Vec3,
-        cube: List[List[List[Item]]] = None,
+        cube: Cuboid = None,
         ncube: Any = None,
         anchor: Anchor3 = Anchor3.BOTTOM_NW,
-        move_players: bool = True,
+        do_teleport: bool = True,
         pause: float = 0,
         erase_pause: float = 0.3,
         render: bool = True,
@@ -40,12 +38,20 @@ class Cuboid:
         self.volume = Volume(position, Vec3(*self.ncube.shape), self.anchor)
         self._solid: Any = self.ncube != Item.AIR
 
-        self.teleport = move_players
+        self.do_teleport = do_teleport
         self.pause = pause
         self.erase_pause = erase_pause
 
         if render:
             asyncio.run(self._render())
+
+    def move(self, vector: Vec3, clear: bool = True) -> None:
+        """ sychronous move """
+        asyncio.run(self.move_a(vector, clear))
+
+    def rotate(self, plane: Planes3d, steps: int = 1, clear=True) -> None:
+        """ synchronous rotate """
+        asyncio.run(self.rotate_a(plane, steps, clear))
 
     async def _render(self) -> None:
         """ render the cuboid's blocks into Minecraft """
@@ -68,10 +74,6 @@ class Cuboid:
                 await asyncio.sleep(0)
                 self._client.setblock(old_start + Vec3(*idx), Item.AIR.value)
 
-    def rotate(self, plane: Planes3d, steps: int = 1, clear=True) -> None:
-        """ synchronous rotate """
-        asyncio.run(self.rotate_a(plane, steps, clear))
-
     async def rotate_a(self, plane: Planes3d, steps: int = 1, clear=True) -> None:
         """ rotate the blocks in the cuboid in place """
         self.ncube = np.rot90(self.ncube, k=steps, axes=plane.value)
@@ -84,14 +86,6 @@ class Cuboid:
 
         await self._render()
         await asyncio.sleep(self.pause)
-
-    async def glide(self, new_position: Vec3):
-        """ asynchronously move to new location with self.pause secs between steps"""
-        #  TODO
-
-    def move(self, vector: Vec3, clear: bool = True) -> None:
-        """ sychronous move """
-        asyncio.run(self.move_a(vector, clear))
 
     async def move_a(self, vector: Vec3, clear: bool = True) -> None:
         """ moves the cubiod in the world and redraws it """
@@ -109,63 +103,17 @@ class Cuboid:
             await self._unrender(vector, old_start)
             await asyncio.sleep(self.pause)
 
-    def move_players(self, vector: Vec3) -> None:
-        """ moves any players within the cuboid by vector """
-        if self.teleport:
+    async def glide(self, new_position: Vec3):
+        """ asynchronously move to new location with self.pause secs between steps"""
+        #  TODO
+
+    def move_players(self, distance: Vec3) -> None:
+        """ moves any players within the cuboid by distance """
+        if self.do_teleport:
             players = Player.players_in(self._client, self.volume)
 
             for player in players:
                 pos = Player.player_pos(self._client, player)
-                pos += vector
+                pos += distance
 
                 self._client.teleport(targets=player, location=pos)
-
-    def save(self, filename: Path) -> None:
-        """ save the contents of the cuboid to a json file """
-
-        def json_item(item: Item):
-            return {"__Item__": item.value}
-
-        save_list = self.ncube.tolist()
-        json.dump(
-            save_list,
-            codecs.open(str(filename), "w", encoding="utf-8"),
-            separators=(",", ":"),
-            sort_keys=True,
-            indent=4,
-            default=json_item,
-        )
-
-    @classmethod
-    def load(cls, filename: Union[Path, str]) -> None:
-        def as_item(d):
-            if "__Item__" in d:
-                return Item(d["__Item__"])
-            else:
-                return d
-
-        """ load a previously saved file - returns a list of list of list of Item """
-        return json.load(
-            codecs.open(str(filename), "r", encoding="utf-8"), object_hook=as_item
-        )
-
-    dump = Vec3(0, 0, 0)
-    extract_item = re.compile(r".*minecraft\:(?:blocks\/)?(.+)$")
-
-    @classmethod
-    def grab(cls, client: Client, vol: Volume) -> "Cuboid":
-        """ copy blocks from a Volume in the minecraft world to create a cuboid """
-        ncube = np.ndarray(vol.size, dtype=Item)
-
-        for idx, _ in np.ndenumerate(ncube):
-            res = client.loot.spawn(cls.dump).mine(vol.start + Vec3(*idx))
-            match = cls.extract_item.search(res)
-            if not match:
-                raise ValueError(f"loot spawn returned: {res}")
-            name = match.group(1)
-            if name == "empty":
-                name = "air"
-            ncube[idx] = Item(name)
-
-        res = Cuboid(client, vol.position, ncube=ncube, anchor=vol.anchor, render=False)
-        return res
