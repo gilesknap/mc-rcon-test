@@ -28,8 +28,30 @@ def setup(client):
     client.gamerule("sendCommandFeedback", False)
 
     # clear an area around the centre
-    erase = Volume(Vec3(0, 5, 0), Vec3(150, 150, 150), anchor=Anchor3.BOTTOM_MIDDLE)
+    erase = Volume(Vec3(0, 5, 0), Vec3(150, 180, 180), anchor=Anchor3.BOTTOM_MIDDLE)
     erase.fill(client)
+
+
+corners = (
+    Anchor3.BOTTOM_NW,
+    Anchor3.BOTTOM_SW,
+    Anchor3.BOTTOM_NE,
+    Anchor3.BOTTOM_SE,
+    Anchor3.TOP_NW,
+    Anchor3.TOP_SW,
+    Anchor3.TOP_NE,
+    Anchor3.TOP_SE,
+)
+items = (
+    Item.BLACK_CONCRETE,
+    Item.RED_CONCRETE,
+    Item.YELLOW_CONCRETE,
+    Item.GREEN_CONCRETE,
+    Item.BLUE_CONCRETE,
+    Item.ORANGE_CONCRETE,
+    Item.PINK_CONCRETE,
+    Item.PURPLE_CONCRETE,
+)
 
 
 def funky_cube(size: int) -> Cuboid:
@@ -157,6 +179,10 @@ def demo():
             knot_blocks.move(Vec3(0, -12, 0), clear=False)
 
             pos += Vec3(12, 0, 0)
+
+        for t, (anchor, item) in enumerate(zip(corners, items)):
+            v = Volume(Vec3(0, 30, 60), Vec3(20, 20, 20), anchor=anchor)
+            v.walls(client, item, thickness=t+1)
 
         # TODO create a McTask base class which packages up all async stuff
         tasks = [
