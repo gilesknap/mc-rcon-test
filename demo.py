@@ -6,7 +6,7 @@ from typing import cast
 from mcipc.rcon.enumerations import FillMode
 from mcipc.rcon.item import Item
 from mcipc.rcon.je import Client
-from mcwb import Anchor, Direction, Profile, Vec3, mktunnel
+from mcwb import Anchor, Anchor3, Direction, Profile, Vec3, Volume, mktunnel
 
 from mcwc.blocks import Blocks
 
@@ -14,7 +14,6 @@ from mcwc.blocks import Blocks
 from mcwc.button import Button
 from mcwc.enumerations import Planes3d
 from mcwc.itemlists import Cuboid, grab, load_cuboid, save
-from mcwc.volume import Anchor3, Volume
 
 shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
 

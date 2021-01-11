@@ -1,9 +1,6 @@
 {
 	"folders": [
         {
-            "path": "../MinecraftServers"
-        },
-        {
             "path": "../minecraft-control"
         },
         {
@@ -17,6 +14,9 @@
         },
         {
             "path": "../mcwb"
+        },
+        {
+            "path": "../../MinecraftServers"
         }
     ],
     "settings": {}

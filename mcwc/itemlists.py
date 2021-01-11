@@ -13,10 +13,9 @@ from typing import List, Union, cast
 import numpy as np
 from mcipc.rcon.enumerations import Item
 from mcipc.rcon.je import Client
-from mcwb import Profile, Row, Vec3
+from mcwb import Profile, Row, Vec3, Volume
 from mcwb.functions import validate
 
-from mcwc.volume import Volume
 
 Cuboid = List[Profile]
 Items = Union[Cuboid, Profile, Row]

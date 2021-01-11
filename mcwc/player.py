@@ -2,9 +2,7 @@ import re
 
 from mcipc.rcon.enumerations import Item
 from mcipc.rcon.je import Client
-from mcwb import Vec3
-
-from mcwc.volume import Volume
+from mcwb import Vec3, Volume
 
 regex_coord = re.compile(r"\[(-?\d+.?\d*)d, *(-?\d+.?\d*)d, *(-?\d+.?\d*)d\]")
 

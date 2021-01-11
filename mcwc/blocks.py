@@ -4,13 +4,12 @@ from typing import Any
 import numpy as np
 from mcipc.rcon.enumerations import Item
 from mcipc.rcon.je import Client
-from mcwb import Vec3
+from mcwb import Vec3, Anchor3, Volume
 
-from mcwc.enumerations import Anchor3, Planes3d
+from mcwc.enumerations import Planes3d
 from mcwc.functions import shift
 from mcwc.itemlists import Cuboid
 from mcwc.player import Player
-from mcwc.volume import Volume
 
 
 class Blocks:
