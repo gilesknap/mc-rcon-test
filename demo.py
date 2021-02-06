@@ -6,14 +6,14 @@ from typing import cast
 from mcipc.rcon.enumerations import FillMode
 from mcipc.rcon.item import Item
 from mcipc.rcon.je import Client
-from mcwb import Anchor, Anchor3, Direction, Profile, Vec3, Volume, mktunnel
+from mcwb import Anchor, Anchor3, Cuboid, Direction, Profile, Vec3, Volume, mktunnel
+from mcwb.itemlists import grab, load_items, save_items
 
 from mcwc.blocks import Blocks
 
 # TODO tidy module exports in __init__
 from mcwc.button import Button
 from mcwc.enumerations import Planes3d
-from mcwc.itemlists import Cuboid, grab, load_cuboid, save
 
 shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
 
@@ -28,7 +28,9 @@ def setup(client):
     client.gamerule("sendCommandFeedback", False)
 
     # clear an area around the centre
-    erase = Volume(Vec3(0, 5, 0), Vec3(150, 180, 180), anchor=Anchor3.BOTTOM_MIDDLE)
+    erase = Volume.from_anchor(
+        Vec3(0, 5, 0), Vec3(150, 180, 180), anchor=Anchor3.BOTTOM_MIDDLE
+    )
     erase.fill(client)
 
 
@@ -148,7 +150,7 @@ def demo():
         anchor = Anchor3.BOTTOM_MIDDLE
         pos = Vec3(0, 5, -40)
 
-        plane_json = load_cuboid(shapes_folder / "airplane.json")
+        plane_json = load_items(shapes_folder / "airplane.json", 3)
         airplane = Blocks(client, pos, plane_json, anchor=anchor, pause=0)
 
         pos = Vec3(0, 5, 0)
@@ -167,11 +169,11 @@ def demo():
         # copy all 5 knots down by 12 blocks
         # do it using files to prove save and load
         for x in range(5):
-            knot_vol = Volume(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
+            knot_vol = Volume.from_anchor(pos, Vec3(11, 11, 11), Anchor3.MIDDLE)
             knot_cuboid = grab(client, knot_vol)
-            save(knot_cuboid, Path("/tmp") / f"knot{x}.json")
+            save_items(knot_cuboid, Path("/tmp") / f"knot{x}.json")
 
-            knot_cuboid_read = load_cuboid(Path("/tmp") / f"knot{x}.json")
+            knot_cuboid_read = load_items(Path("/tmp") / f"knot{x}.json")
             knot_blocks = Blocks(
                 client, knot_vol.position, knot_cuboid_read, anchor=Anchor3.MIDDLE
             )
@@ -181,8 +183,8 @@ def demo():
             pos += Vec3(12, 0, 0)
 
         for t, (anchor, item) in enumerate(zip(corners, items)):
-            v = Volume(Vec3(0, 30, 60), Vec3(20, 20, 20), anchor=anchor)
-            v.walls(client, item, thickness=t+1)
+            v = Volume.from_anchor(Vec3(0, 30, 60), Vec3(20, 20, 20), anchor=anchor)
+            v.walls(client, item, thickness=t + 1)
 
         # TODO create a McTask base class which packages up all async stuff
         tasks = [

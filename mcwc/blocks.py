@@ -4,11 +4,11 @@ from typing import Any
 import numpy as np
 from mcipc.rcon.enumerations import Item
 from mcipc.rcon.je import Client
-from mcwb import Vec3, Anchor3, Volume
+from mcwb import Anchor3, Vec3, Volume
+from mcwb.types import Items
 
 from mcwc.enumerations import Planes3d
 from mcwc.functions import shift
-from mcwc.itemlists import Cuboid
 from mcwc.player import Player
 
 
@@ -22,8 +22,8 @@ class Blocks:
         self,
         client: Client,
         position: Vec3,
-        cube: Cuboid = None,
-        ncube: Any = None,
+        cube: Items = None,
+        ncube: np.ndarray = None,
         anchor: Anchor3 = Anchor3.BOTTOM_NW,
         do_teleport: bool = True,
         pause: float = 0,
@@ -33,8 +33,10 @@ class Blocks:
         self._client = client
         self.anchor = anchor
         self.ncube = ncube if ncube is not None else np.array(cube, dtype=Item)
+        if self.ncube.ndim != 3:
+            raise ValueError("invalid cube specificaton")
 
-        self.volume = Volume(position, Vec3(*self.ncube.shape), self.anchor)
+        self.volume = Volume.from_anchor(position, Vec3(*self.ncube.shape), self.anchor)
         self._solid: Any = self.ncube != Item.AIR
 
         self.do_teleport = do_teleport
@@ -80,7 +82,9 @@ class Blocks:
             self.volume.fill(self._client)
 
         self._solid = self.ncube != Item.AIR
-        self.volume = Volume(self.volume.position, Vec3(*self.ncube.shape), self.anchor)
+        self.volume = Volume.from_anchor(
+            self.volume.position, Vec3(*self.ncube.shape), self.anchor
+        )
 
         await self._render()
         await asyncio.sleep(self.pause)
@@ -88,7 +92,7 @@ class Blocks:
     async def move_a(self, vector: Vec3, clear: bool = True) -> None:
         """ moves the cubiod in the world and redraws it """
         old_start = self.volume.start
-        self.volume = Volume(
+        self.volume = Volume.from_anchor(
             self.volume.position + vector, Vec3(*self.ncube.shape), self.anchor
         )
 
