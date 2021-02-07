@@ -1,9 +1,10 @@
-import asyncio
+from time import sleep
 from typing import Callable, List
 
 from mcipc.rcon.enumerations import Item, SetblockMode
 from mcipc.rcon.je import Client
 from mcwb import Vec3
+
 
 # TODO make this generic for all activating blocks including Skulk Sensors
 class Button:
@@ -66,10 +67,10 @@ class Button:
         return result
 
     @classmethod
-    async def monitor(cls, client: Client):
+    def monitor(cls, client: Client):
         cls.monitoring = True
         while cls.monitoring:
-            await asyncio.sleep(0.1)
+            sleep(0.1)
             for button in cls.buttons:
                 if button.powered:
                     if cls.check_state(client, button.location, button.off):
