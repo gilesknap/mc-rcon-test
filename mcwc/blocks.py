@@ -1,3 +1,4 @@
+""" render and transform cuboids of blocks in minecraft space """
 from typing import Any
 
 import numpy as np
@@ -13,7 +14,7 @@ from mcwc.functions import shift
 class Blocks:
     """
     Represents a cubiod of arbitrary blocks in a minecraft world with functions
-    for manipulating transforming those blocks
+    for transforming and rendering those blocks in the world
     """
 
     def __init__(

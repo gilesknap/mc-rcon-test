@@ -127,7 +127,10 @@ def demo():
             ]
             speed: int = 1
             while True:
-                await lever2_switched_on.wait()
+                await asyncio.sleep(.2)
+                if not lever1.powered:
+                    continue
+                # await lever2_switched_on.wait()
                 start = datetime.now()
                 for rot, dir, dist in seq:
                     await asyncio.sleep(0)
@@ -148,7 +151,7 @@ def demo():
         pos += Direction.NORTH.value
         button2 = Button(client, pos, changed)
         pos += Direction.NORTH.value
-        Button(client, pos, changed, True)
+        lever1 = Button(client, pos, changed, True)
 
         anchor = Anchor3.BOTTOM_MIDDLE
         pos = Vec3(0, 5, -40)
@@ -157,7 +160,7 @@ def demo():
         airplane = Blocks(client, pos, plane_json, anchor=anchor)
 
         pos = Vec3(0, 5, 0)
-        fun_cube = Blocks(client, pos, funky_cube(30), anchor=anchor)
+        fun_cube = Blocks(client, pos, funky_cube(6), anchor=anchor)
 
         # copy village
         # village_v = Volume(Vec3(146, 3, -325), end=Vec3(264, 15, -434))
