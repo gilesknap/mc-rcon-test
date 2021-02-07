@@ -96,7 +96,8 @@ async def spin(cuboid: Blocks, clear: bool = False):
     while True:
         for plane in Planes3d:
             for _ in range(9):
-                await cuboid.rotate_a(plane, clear=clear)
+                await asyncio.sleep(0)
+                cuboid.rotate(plane, clear=clear)
 
 
 def demo():
@@ -129,9 +130,11 @@ def demo():
                 await lever2_switched_on.wait()
                 start = datetime.now()
                 for rot, dir, dist in seq:
-                    await cuboid.rotate_a(Planes3d.XZ, steps=rot, clear=True)
+                    await asyncio.sleep(0)
+                    cuboid.rotate(Planes3d.XZ, steps=rot, clear=True)
                     for _ in range(dist):
-                        await cuboid.move_a(dir.value * speed)
+                        await asyncio.sleep(0)
+                        cuboid.move(dir.value * speed)
                 elapsed = datetime.now() - start
                 print(f"the journey took {elapsed}")
 
@@ -151,10 +154,10 @@ def demo():
         pos = Vec3(0, 5, -40)
 
         plane_json = load_items(shapes_folder / "airplane.json", 3)
-        airplane = Blocks(client, pos, plane_json, anchor=anchor, pause=0)
+        airplane = Blocks(client, pos, plane_json, anchor=anchor)
 
         pos = Vec3(0, 5, 0)
-        fun_cube = Blocks(client, pos, funky_cube(30), anchor=anchor, pause=1.0)
+        fun_cube = Blocks(client, pos, funky_cube(30), anchor=anchor)
 
         # copy village
         # village_v = Volume(Vec3(146, 3, -325), end=Vec3(264, 15, -434))
@@ -177,7 +180,6 @@ def demo():
             knot_blocks = Blocks(
                 client, knot_vol.position, knot_cuboid_read, anchor=Anchor3.MIDDLE
             )
-            knot_blocks.pause = 2
             knot_blocks.move(Vec3(0, -12, 0), clear=False)
 
             pos += Vec3(12, 0, 0)
