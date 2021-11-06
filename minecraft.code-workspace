@@ -1,22 +1,25 @@
 {
-	"folders": [
-        {
-            "path": "../minecraft-control"
-        },
+    "folders": [
         {
             "path": "."
-        },
-        {
-            "path": "../mcipc"
-        },
-        {
-            "path": "../rcon"
         },
         {
             "path": "../mcwb"
         },
         {
-            "path": "../../MinecraftServers"
+            "path": "../mcipc"
+        },
+        {
+            "path": "../k3s-minecraft"
+        },
+        {
+            "path": "../mciwb"
+        },
+        {
+            "path": "../rcon"
+        },
+        {
+            "path": "../ibek"
         }
     ],
     "settings": {}

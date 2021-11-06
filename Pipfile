@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+mcipc = {editable = true, path = "../mcipc"}
+mcwb = {editable = true, path = "../mcwb"}
 mcwc = {editable = true,path = "."}
-mcipc = {editable = true, path = "./../mcipc"}
-mcwb = {editable = true, path = "./../mcwb"}
 numpy = "*"
 aiohttp = "*"
 aiofiles = "*"
@@ -19,7 +19,7 @@ flake8 = "*"
 ipython = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
 
 [pipenv]
 allow_prereleases = true

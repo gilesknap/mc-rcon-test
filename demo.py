@@ -19,9 +19,12 @@ from mcwc.enumerations import Planes3d
 shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
 
 # my server ports
-science = 25701
+science = 30501, "CHANGEME!"
+# um why the hell cant I change the rcon password
 quest = 25575
 flat = 25901
+docker = 20201, "spider"
+docker2 = 30351, "CHANGEME!"
 
 
 def setup(client):
@@ -104,7 +107,10 @@ def spin(cuboid: Blocks, clear: bool = False):
 def demo():
     clients = []
     for i in range(4):
-        clients.append(Client("localhost", flat, passwd="spider"))
+        port, passw = docker2
+        # port, passw = science
+        print(port, passw)
+        clients.append(Client("localhost", port, passwd=passw))
         clients[i].__enter__()
 
     # callback function for Button activation
@@ -151,7 +157,7 @@ def demo():
     airplane = Blocks(clients[1], pos, plane_json, anchor=anchor)
 
     pos = Vec3(0, 5, 0)
-    fun_cube = Blocks(clients[2], pos, funky_cube(60), anchor=anchor)
+    fun_cube = Blocks(clients[2], pos, funky_cube(15), anchor=anchor)
 
     # copy village
     # village_v = Volume(Vec3(146, 3, -325), end=Vec3(264, 15, -434))
@@ -187,7 +193,7 @@ def demo():
         Thread(target=spin, args=[fun_cube]),
         Thread(target=spin, args=[knot_blocks]),
         Thread(target=move_vehicle, args=[airplane]),
-        #Thread(target=Button.monitor, args=[clients[0]]),
+        # Thread(target=Button.monitor, args=[clients[0]]),
     ]
 
     for thread in threads:
