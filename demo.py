@@ -18,15 +18,6 @@ from mcwc.enumerations import Planes3d
 
 shapes_folder = Path(__file__).parent / "mcwc" / "shapes"
 
-# my server ports
-science = 30501, "CHANGEME!"
-# um why the hell cant I change the rcon password
-quest = 25575
-flat = 25901
-docker = 20201, "spider"
-docker2 = 30351, "CHANGEME!"
-
-
 def setup(client):
     # don't announce every rcon command
     client.gamerule("sendCommandFeedback", False)
@@ -86,13 +77,13 @@ def test_anchor(client: Client, mid: Vec3):
             [Item.BLUE_CONCRETE, Item.AIR, Item.YELLOW_CONCRETE],
         ]
         f = FillMode.KEEP
-        for d in Direction:
+        for d in Direction.all:
             mktunnel(client, p, mid, direction=d, length=5, mode=f, anchor=a)
 
     # join at red, green, blue, yellow, middle
     for a in Anchor:
         knot(client, mid, a)
-        mid += Direction.EAST.value * 12
+        mid += Direction.EAST * 12
 
 
 # spin a cuboid asynchronously forever
@@ -107,10 +98,9 @@ def spin(cuboid: Blocks, clear: bool = False):
 def demo():
     clients = []
     for i in range(4):
-        port, passw = docker2
-        # port, passw = science
-        print(port, passw)
-        clients.append(Client("localhost", port, passwd=passw))
+        port = 31001
+        passw = "TODO - supply this as an override on the command line "
+        clients.append(Client("nuc1", port, passwd=passw))
         clients[i].__enter__()
 
     # callback function for Button activation
@@ -136,7 +126,7 @@ def demo():
             for rot, dir, dist in seq:
                 cuboid.rotate(Planes3d.XZ, steps=rot, clear=True)
                 for _ in range(dist):
-                    cuboid.move(dir.value * speed)
+                    cuboid.move(dir * speed)
                     sleep(0.5)
             elapsed = datetime.now() - start
             print(f"the journey took {elapsed}")
@@ -145,9 +135,9 @@ def demo():
 
     pos = Vec3(-5, 5, -38)
     Button(clients[0], pos, changed)
-    pos += Direction.NORTH.value
+    pos += Direction.NORTH
     Button(clients[0], pos, changed)
-    pos += Direction.NORTH.value
+    pos += Direction.NORTH
     lever1 = Button(clients[0], pos, changed, True)
 
     anchor = Anchor3.BOTTOM_MIDDLE
